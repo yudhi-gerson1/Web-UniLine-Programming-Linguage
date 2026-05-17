@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web-UniLine v1.2</title>
+
+<style>
+
+:root{
+    --bg:#1a1a1a;
+    --panel:#252525;
+    --blue:#00aaff;
+    --green:#00ff66;
+    --text:#e0e0e0;
+    --error:#ff5555;
+    --warning:#ffaa00;
+}
+
+body{
+    margin:0;
+    padding:20px;
+    background:var(--bg);
+    color:var(--text);
+    font-family:Consolas,monospace;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.logo{
+    width:90px;
+    height:90px;
+    border:4px solid var(--blue);
+    border-radius:20px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:10px;
+}
+
+.logo span{
+    font-size:40px;
+    font-weight:bold;
+    color:var(--blue);
+}
+
+h1{
+    margin:5px 0;
+    color:var(--blue);
+}
+
+.lema{
+    font-style:italic;
+    opacity:.8;
+    margin-bottom:20px;
+}
+
+.warning{
+    background:#332200;
+    border-left:5px solid var(--warning);
+    padding:15px;
+    margin-bottom:20px;
+    width:100%;
+    max-width:1000px;
+    border-radius:10px;
+    color:#ffd27a;
+}
+
+.container{
+    width:100%;
+    max-width:1000px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+textarea{
+    width:100%;
+    height:170px;
+    resize:none;
+    background:var(--panel);
+    border:2px solid var(--blue);
+    border-radius:15px;
+    padding:20px;
+    box-sizing:border-box;
+    font-size:1em;
+    color:var(--blue);
+    outline:none;
+}
+
+button{
+    align-self:flex-end;
+    padding:12px 30px;
+    border:none;
+    border-radius:30px;
+    background:var(--blue);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:active{
+    transform:scale(0.95);
+}
+
+#terminal{
+    width:100%;
+    min-height:320px;
+    background:black;
+    border-left:6px solid var(--blue);
+    border-radius:10px;
+    padding:20px;
+    box-sizing:border-box;
+    white-space:pre-wrap;
+    overflow-y:auto;
+    color:var(--green);
+    font-size:1.1em;
+}
+
+.error{
+    color:var(--error);
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="logo">
+<span>&gt;_</span>
+</div>
+
+<h1>Web-UniLine v1.2</h1>
+
+<div class="lema">
+"Se tem uma linha, tem história!"
+</div>
+
+<div class="warning">
+⚠️ Cuidado: Agora o UniLine tem erros na v1.2! Então, verifique o seu código antes de executar.
+</div>
+
+<div class="container">
+
+<textarea id="codigo" placeholder='Exemplo:
+
+ww random x
+n = randomint(1, 10) x
+show(n)
+
+'></textarea>
+
+<button onclick="executar()">
+EXECUTAR
+</button>
+
+<div id="terminal">
+>_ UniLine iniciado... (Fundação: 06/05/26)
+</div>
+
+</div>
+<a href="https://a6lnhi.mimo.run/index.html">Manual de Bibliotecas</a>
+<script>
+
+let memoria = {};
+
+let libs = {
+    random:false,
+    boolean:false
+};
+
+let statusCondicional = false;
+
+const terminal = document.getElementById("terminal");
+
+function print(txt){
+
+    if(txt === true) txt = "yes";
+    if(txt === false) txt = "no";
+    if(txt === null) txt = "wdef";
+
+    terminal.innerHTML += `\n> ${txt}`;
+    terminal.scrollTop = terminal.scrollHeight;
+
+}
+
+function throwError(name,message){
+
+    throw {
+        name:name,
+        message:message
+    };
+
+}
+
+function separar(codigo){
+
+    let comandos = [];
+    let atual = "";
+    let aspas = null;
+
+    for(let i=0;i<codigo.length;i++){
+
+        let c = codigo[i];
+
+        if(c === '"' || c === "'"){
+
+            if(aspas === c){
+                aspas = null;
+            }else if(!aspas){
+                aspas = c;
+            }
+
+        }
+
+        if(
+            !aspas &&
+            c === "x" &&
+            /\s/.test(codigo[i-1] || " ") &&
+            /\s/.test(codigo[i+1] || " ")
+        ){
+
+            if(atual.trim() === ""){
+
+                throwError(
+                    "XError",
+                    "XError: expected a command before 'x'."
+                );
+
+            }
+
+            comandos.push(atual.trim());
+            atual = "";
+            continue;
+
+        }
+
+        atual += c;
+
+    }
+
+    if(atual.trim() !== ""){
+
+        comandos.push(atual.trim());
+
+    }else if(codigo.trim().endsWith("x")){
+
+        throwError(
+            "XError",
+            "XError: expected a command after 'x'."
+        );
+
+    }
+
+    return comandos;
+
+}
+
+function verificarParenteses(cmd){
+
+    let aberto = (cmd.match(/\(/g) || []).length;
+    let fechado = (cmd.match(/\)/g) || []).length;
+
+    if(aberto !== fechado){
+
+        throwError(
+            "UnclosedError",
+            "UnclosedError: expected ')' after a function."
+        );
+
+    }
+
+}
+
+function valor(v){
+
+    v = String(v).trim();
+
+    if(v === "yes") return true;
+    if(v === "no") return false;
+    if(v === "wdef") return null;
+
+    if(v in memoria){
+        return memoria[v];
+    }
+
+    if(
+        (v.startsWith('"') && v.endsWith('"')) ||
+        (v.startsWith("'") && v.endsWith("'"))
+    ){
+        return v.slice(1,-1);
+    }
+
+    if(v === "waitkb()"){
+        return prompt("UniLine Input:");
+    }
+
+    if(v.includes("/0") || v.includes("/ 0")){
+
+        throwError(
+            "DivisionError",
+            "DivisionError: Cannot divide by 0."
+        );
+
+    }
+
+    if(libs.random){
+
+        v = v.replace(/randomint\((.*?),(.*?)\)/g,(_,a,b)=>{
+
+            return Math.floor(
+                Math.random() *
+                (Number(valor(b)) - Number(valor(a)) + 1)
+            ) + Number(valor(a));
+
+        });
+
+        v = v.replace(/randomdb\((.*?),(.*?)\)/g,(_,a,b)=>{
+
+            return (
+                Math.random() *
+                (Number(valor(b)) - Number(valor(a))) +
+                Number(valor(a))
+            ).toFixed(2);
+
+        });
+
+        v = v.replace(/randomstr\((.*?)\)/g,(_,a)=>{
+
+            let chars =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+            let r = "";
+
+            for(let i=0;i<Number(valor(a));i++){
+
+                r += chars[
+                    Math.floor(Math.random()*chars.length)
+                ];
+
+            }
+
+            return `"${r}"`;
+
+        });
+
+    }
+
+    if(libs.boolean){
+
+        v = v.replace(
+            /intBool\((.*?)\)/g,
+            (_,a)=>valor(a)?1:0
+        );
+
+        v = v.replace(
+            /kwBool\((.*?)\)/g,
+            (_,a)=>
+            (
+                valor(a)==1 ||
+                valor(a)===true
+            ) ? "yes" : "no"
+        );
+
+        v = v.replace(
+
+            /verifyBool\((.*?) (.*?) (.*?)\)/g,
+
+            (_,a,op,b)=>{
+
+                let A = Boolean(valor(a));
+                let B = Boolean(valor(b));
+
+                switch(op){
+
+                    case "and":
+                        return A && B ? "yes" : "no";
+
+                    case "or":
+                        return A || B ? "yes" : "no";
+
+                    case "xor":
+                        return A !== B ? "yes" : "no";
+
+                    case "nand":
+                        return !(A && B) ? "yes" : "no";
+
+                    case "nor":
+                        return !(A || B) ? "yes" : "no";
+
+                    default:
+
+                        throwError(
+                            "SyntaxError",
+                            "SyntaxError: Unknown command detected."
+                        );
+
+                }
+
+            }
+
+        );
+
+    }
+
+    if(v.startsWith("verify(")){
+
+        if(!v.endsWith(")")){
+
+            throwError(
+                "UnclosedError",
+                "UnclosedError: expected ')' after a function."
+            );
+
+        }
+
+        let exp = v.match(/verify\((.*)\)/);
+
+        if(!exp){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        return avaliar(exp[1]) ? "yes" : "no";
+
+    }
+
+    v = v.replace(/elev/g,"**");
+
+    try{
+
+        let jsV = v
+        .replace(/\byes\b/g,"true")
+        .replace(/\bno\b/g,"false")
+        .replace(/\band\b/g,"&&")
+        .replace(/\bor\b/g,"||");
+
+        let contexto = "";
+
+        for(let k in memoria){
+
+            contexto +=
+            `let ${k} = ${JSON.stringify(memoria[k])}; `;
+
+        }
+
+        return new Function(
+            `${contexto} return (${jsV})`
+        )();
+
+    }catch(e){
+
+        if(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(v)){
+
+            throwError(
+                "VariableError",
+                `VariableError: "${v}" is not defined.`
+            );
+
+        }
+
+        if(
+            v.includes("+") ||
+            v.includes("-") ||
+            v.includes("*") ||
+            v.includes("/")
+        ){
+
+            throwError(
+                "AnyError",
+                "AnyError: Fatal Error while parsing."
+            );
+
+        }
+
+        return v.replace(/^["']|["']$/g,"");
+
+    }
+
+}
+
+function avaliar(exp){
+
+    let r = valor(exp);
+
+    return (
+        r === "yes" ||
+        r === true
+    );
+
+}
+
+function executarComando(cmd){
+
+    cmd = cmd.trim();
+
+    if(!cmd){
+        return;
+    }
+
+    verificarParenteses(cmd);
+
+    if(cmd.startsWith("ww ")){
+
+        let lib = cmd.split(" ")[1];
+
+        if(libs[lib] !== undefined){
+
+            libs[lib] = true;
+
+            print(
+                `[SISTEMA]: Biblioteca ${lib} ativada.`
+            );
+
+        }else{
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        return;
+
+    }
+
+    if(cmd.startsWith("show(")){
+
+        print(
+            valor(cmd.substring(5,cmd.length-1))
+        );
+
+        return;
+
+    }
+
+    if(cmd.startsWith("calculate(")){
+
+        print(
+            valor(cmd.substring(10,cmd.length-1))
+        );
+
+        return;
+
+    }
+
+    if(cmd.startsWith("if(")){
+
+        let m =
+        cmd.match(/if\((.*?)\)\s*then\((.*)\)/);
+
+        if(!m){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        statusCondicional = avaliar(m[1]);
+
+        if(statusCondicional){
+
+            executarComando(m[2]);
+
+        }
+
+        return;
+
+    }
+
+    if(cmd.startsWith("elif(")){
+
+        if(statusCondicional){
+            return;
+        }
+
+        let m =
+        cmd.match(/elif\((.*?)\)\s*then\((.*)\)/);
+
+        if(!m){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        statusCondicional = avaliar(m[1]);
+
+        if(statusCondicional){
+
+            executarComando(m[2]);
+
+        }
+
+        return;
+
+    }
+
+    if(cmd.startsWith("else(")){
+
+        if(statusCondicional){
+            return;
+        }
+
+        executarComando(
+            cmd.substring(5,cmd.length-1)
+        );
+
+        return;
+
+    }
+
+    if(cmd.startsWith("repeat(")){
+
+        let m =
+        cmd.match(/repeat\((.*?)\):(.*)/);
+
+        if(!m){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        let vezes = Number(valor(m[1]));
+
+        for(let i=0;i<vezes;i++){
+
+            executarComando(m[2]);
+
+        }
+
+        return;
+
+    }
+
+    if(cmd.startsWith("while(")){
+
+        let m =
+        cmd.match(/while\((.*?)\):(.*)/);
+
+        if(!m){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        let safe = 0;
+
+        while(
+            avaliar(m[1]) &&
+            safe < 1000
+        ){
+
+            executarComando(m[2]);
+            safe++;
+
+        }
+
+        return;
+
+    }
+
+    if(cmd.startsWith("for(")){
+
+        let m = cmd.match(
+        /for\((.*?)=(.*?),(.*?)until(.*?)\):(.*)/
+        );
+
+        if(!m){
+
+            throwError(
+                "SyntaxError",
+                "SyntaxError: Unknown command detected."
+            );
+
+        }
+
+        let nome = m[1].trim();
+        let inicio = Number(valor(m[2]));
+        let fim = Number(valor(m[4]));
+        let passo = m[3].includes("++") ? 1 : -1;
+        let acao = m[5];
+
+        for(
+            let i=inicio;
+            passo>0 ? i<=fim : i>=fim;
+            i+=passo
+        ){
+
+            memoria[nome] = i;
+
+            executarComando(acao);
+
+        }
+
+        return;
+
+    }
+
+    if(
+        cmd.includes("=") &&
+        !["==",">=","<=","!="]
+        .some(op=>cmd.includes(op))
+    ){
+
+        let idx = cmd.indexOf("=");
+
+        let nome =
+        cmd.substring(0,idx).trim();
+
+        let v =
+        cmd.substring(idx+1).trim();
+
+        memoria[nome] = valor(v);
+
+        return;
+
+    }
+
+    if(
+        /^[a-zA-Z_][a-zA-Z0-9_]*\(.*\)$/.test(cmd)
+    ){
+
+        throwError(
+            "SyntaxError",
+            "SyntaxError: Unknown command detected."
+        );
+
+    }
+
+    throwError(
+        "GivingUpError",
+        "GivingUpError: The error is too fatal that the transpiler gives up executing your project."
+    );
+
+}
+
+function executar(){
+
+    terminal.innerHTML =
+    ">_ Rodando UniLine Engine...";
+
+    memoria = {};
+
+    libs = {
+        random:false,
+        boolean:false
+    };
+
+    statusCondicional = false;
+
+    let codigo =
+    document.getElementById("codigo").value;
+
+    try{
+
+        let comandos = separar(codigo);
+
+        comandos.forEach(c=>{
+
+            executarComando(c);
+
+        });
+
+    }catch(e){
+
+        terminal.innerHTML +=
+        `\n<span class="error">${e.message}</span>`;
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
