@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Web-UniLine v1.2 - strman</title>
+
+<style>
+:root{
+--bg:#1a1a2e;
+--panel:#0f3460;
+--dark:#16213e;
+--blue:#00a8ff;
+--cyan:#4cc9f0;
+--green:#00ff88;
+--text:#e0e0e0;
+--error:#ff5555;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:Consolas,monospace;
+padding:20px;
+}
+
+.header{
+text-align:center;
+margin-bottom:30px;
+}
+
+.logo{
+width:120px;
+height:120px;
+margin:auto;
+border:4px solid var(--blue);
+border-radius:22px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:var(--dark);
+font-size:52px;
+font-weight:bold;
+color:var(--blue);
+box-shadow:0 0 25px var(--blue);
+text-shadow:0 0 15px var(--blue);
+}
+
+.lema{
+margin-top:15px;
+font-style:italic;
+color:var(--cyan);
+font-size:20px;
+}
+
+.card{
+max-width:1000px;
+margin:auto;
+background:var(--panel);
+padding:20px;
+border-radius:18px;
+border:2px solid var(--blue);
+box-shadow:0 0 20px rgba(0,168,255,.15);
+}
+
+.title{
+font-size:28px;
+margin-bottom:15px;
+color:var(--blue);
+}
+
+textarea{
+width:100%;
+height:260px;
+background:var(--bg);
+color:#00ff41;
+border:2px solid var(--blue);
+border-radius:12px;
+padding:15px;
+resize:none;
+font-size:15px;
+font-family:Consolas,monospace;
+outline:none;
+}
+
+button{
+margin-top:15px;
+width:100%;
+padding:14px;
+background:var(--blue);
+color:white;
+border:none;
+border-radius:12px;
+font-size:18px;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+filter:brightness(1.1);
+}
+
+#output{
+margin-top:20px;
+background:var(--dark);
+border-left:5px solid var(--blue);
+border-radius:12px;
+padding:15px;
+min-height:220px;
+white-space:pre-wrap;
+overflow:auto;
+color:var(--green);
+}
+
+.error{
+color:var(--error);
+font-weight:bold;
+}
+
+.footer{
+margin-top:35px;
+text-align:center;
+color:#888;
+font-size:15px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div class="logo">&gt;_</div>
+<div class="lema">"Se tem uma linha, tem história!"</div>
+</div>
+
+<div class="card">
+
+<div class="title">Transpilador strman</div>
+
+<textarea id="codeInput" placeholder='Exemplo:
+
+texto = "Olá, Yudhi" x
+transform("Olá, <x>", texto) x
+show(input) x
+waitkb()'></textarea>
+
+<button onclick="runUniLine()">TRANSPILAR x</button>
+
+<div id="output">
+// Resultado do Terminal Web-UniLine...
+</div>
+
+</div>
+
+<div class="footer">
+UniLine v1.2 - Biblioteca strman - Criado por Yudhi Gerson & Eyder
+</div>
+
+<script>
+
+const output=document.getElementById("output");
+
+let vars={
+yes:true,
+no:false,
+wdef:null
+};
+
+let opinionMode=false;
+
+function log(txt,type="normal"){
+
+if(type==="error"){
+output.innerHTML+=`\n<span class="error">${txt}</span>`;
+}else{
+output.innerHTML+="\n"+txt;
+}
+
+output.scrollTop=output.scrollHeight;
+
+}
+
+function throwError(name,message){
+throw {
+name,
+message
+};
+}
+
+function splitCommands(code){
+
+let cmds=[];
+let current="";
+let quote=null;
+
+for(let i=0;i<code.length;i++){
+
+let c=code[i];
+
+if(c==='"' || c==="'"){
+
+if(quote===c){
+quote=null;
+}else if(!quote){
+quote=c;
+}
+
+}
+
+if(!quote && c==="x"){
+
+let before=code[i-1] || " ";
+let after=code[i+1] || " ";
+
+if(/\s/.test(before) && /\s/.test(after)){
+
+if(current.trim()===""){
+throwError(
+"XError",
+"XError: expected a command before 'x'."
+);
+}
+
+cmds.push(current.trim());
+current="";
+continue;
+
+}
+
+}
+
+current+=c;
+
+}
+
+if(current.trim()){
+cmds.push(current.trim());
+}else if(code.trim().endsWith("x")){
+throwError(
+"XError",
+"XError: expected a command after 'x'."
+);
+}
+
+return cmds;
+
+}
+
+function splitArguments(str){
+
+let args=[];
+let current="";
+let quote=null;
+let depth=0;
+
+for(let i=0;i<str.length;i++){
+
+let c=str[i];
+
+if(c==='"' || c==="'"){
+
+if(quote===c){
+quote=null;
+}else if(!quote){
+quote=c;
+}
+
+}
+
+if(!quote){
+if(c==="(") depth++;
+if(c===")") depth--;
+}
+
+if(c==="," && !quote && depth===0){
+args.push(current.trim());
+current="";
+continue;
+}
+
+current+=c;
+
+}
+
+if(current.trim()){
+args.push(current.trim());
+}
+
+return args;
+
+}
+
+function cesarCipher(text,shift){
+
+shift=((shift%26)+26)%26;
+
+return text.replace(/[a-z]/gi,function(char){
+
+let start=(char<='Z') ? 65 : 97;
+
+return String.fromCharCode(
+((char.charCodeAt(0)-start+shift)%26)+start
+);
+
+});
+
+}
+
+function escapeRegex(str){
+return str.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+}
+
+function transformPattern(pattern,text){
+
+let regexText=escapeRegex(pattern)
+.replace(/<x>/g,'(.+?)')
+.replace(/<num>/g,'(-?\\d+(\\.\\d+)?)')
+.replace(/<bool>/g,'(true|false|yes|no)')
+.replace(/<char>/g,'(.)');
+
+let regex=new RegExp("^"+regexText+"$","i");
+
+let match=text.match(regex);
+
+if(!match){
+throwError(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+}
+
+let result=[];
+
+for(let i=1;i<match.length;i++){
+
+let val=match[i];
+
+if(/^(-?\d+(\.\d+)?)$/.test(val)){
+result.push(Number(val));
+}else if(
+val.toLowerCase()==="true" ||
+val.toLowerCase()==="yes"
+){
+result.push(true);
+}else if(
+val.toLowerCase()==="false" ||
+val.toLowerCase()==="no"
+){
+result.push(false);
+}else{
+result.push(val);
+}
+
+}
+
+return result.length===1
+? result[0]
+: result.join(", ");
+
+}
+
+function evaluate(exp){
+
+exp=String(exp).trim();
+
+if(exp in vars){
+return vars[exp];
+}
+
+if(
+(exp.startsWith('"') && exp.endsWith('"')) ||
+(exp.startsWith("'") && exp.endsWith("'"))
+){
+return exp.slice(1,-1);
+}
+
+if(exp==="waitkb()"){
+
+let val=prompt("UniLine Input:");
+vars["input"]=val;
+return val;
+
+}
+
+let cesarMatch=exp.match(/^cesar\((.*)\)\[(-?\d+)\]$/);
+
+if(cesarMatch){
+
+let text=evaluate(cesarMatch[1]);
+let level=Number(cesarMatch[2]);
+
+return cesarCipher(String(text),level);
+
+}
+
+let replaceMatch=exp.match(/^replace\((.*)\)$/);
+
+if(replaceMatch){
+
+let parts=splitArguments(replaceMatch[1]);
+
+if(parts.length!==3){
+throwError(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+}
+
+let from=evaluate(parts[0]);
+let to=evaluate(parts[1]);
+
+let source=evaluate(
+parts[2].replace(/^of\s+/,'')
+);
+
+return String(source)
+.split(String(from))
+.join(String(to));
+
+}
+
+let lowerMatch=exp.match(/^lower\((.*)\)$/);
+
+if(lowerMatch){
+return String(evaluate(lowerMatch[1])).toLowerCase();
+}
+
+let upperMatch=exp.match(/^upper\((.*)\)$/);
+
+if(upperMatch){
+return String(evaluate(upperMatch[1])).toUpperCase();
+}
+
+let transformMatch=exp.match(/^transform\((.+)\)$/);
+
+if(transformMatch){
+
+let parts=splitArguments(transformMatch[1]);
+
+if(parts.length!==2){
+throwError(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+}
+
+let pattern=evaluate(parts[0]);
+let source=evaluate(parts[1]);
+
+return transformPattern(pattern,String(source));
+
+}
+
+if(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(exp)){
+throwError(
+"VariableError",
+`VariableError: "${exp}" is not defined.`
+);
+}
+
+throwError(
+"GivingUpError",
+"GivingUpError: The error is too fatal that the transpiler gives up executing your project."
+);
+
+}
+
+async function execute(cmd){
+
+if(!cmd){
+return;
+}
+
+if(opinionMode){
+
+if(cmd==="stopOpinion"){
+opinionMode=false;
+}
+
+return;
+
+}
+
+if(cmd.startsWith("opinion:")){
+return;
+}
+
+if(cmd.startsWith("opinions:")){
+opinionMode=true;
+return;
+}
+
+if(
+cmd.includes("=") &&
+!cmd.includes("==")
+){
+
+let idx=cmd.indexOf("=");
+
+let name=cmd.substring(0,idx).trim();
+let value=cmd.substring(idx+1).trim();
+
+vars[name]=evaluate(value);
+return;
+
+}
+
+if(cmd==="waitkb()"){
+
+let value=evaluate(cmd);
+log("> input = "+value);
+return;
+
+}
+
+if(cmd.startsWith("show(")){
+
+if(!cmd.endsWith(")")){
+throwError(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+}
+
+let match=cmd.match(/^show\((.*)\)$/);
+
+if(!match){
+throwError(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+}
+
+log("> "+evaluate(match[1]));
+return;
+
+}
+
+if(
+cmd.startsWith("cesar(") ||
+cmd.startsWith("replace(") ||
+cmd.startsWith("lower(") ||
+cmd.startsWith("upper(") ||
+cmd.startsWith("transform(")
+){
+
+if(!cmd.includes(")")){
+throwError(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+}
+
+log("> "+evaluate(cmd));
+return;
+
+}
+
+throwError(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+async function runUniLine(){
+
+output.innerHTML="// Executando UniLine...\n";
+
+let code=document.getElementById("codeInput").value;
+
+try{
+
+let cmds=splitCommands(code);
+
+for(let c of cmds){
+await execute(c);
+}
+
+}catch(e){
+log(e.message,"error");
+}
+
+}
+
+</script>
+
+</body>
+</html>
