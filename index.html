@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Web-UniLine v1.0 - Oficial</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card: #252525;
+            --blue: #00aaff;
+            --text: #e0e0e0;
+            --code-bg: #111;
+        }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        
+        /* LOGOTIPO AJUSTADO - RETO E VAZADO */
+        .logo-box {
+            width: 120px; height: 120px;
+            border: 4px solid var(--blue);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            margin: 40px auto 10px;
+            background: transparent;
+        }
+        .logo-text { color: var(--blue); font-size: 50px; font-weight: bold; font-family: monospace; }
+
+        header { text-align: center; padding: 20px; border-bottom: 2px solid var(--blue); }
+        .lema { font-style: italic; color: var(--blue); font-size: 1.3em; margin: 10px 0; }
+        
+        .container { max-width: 1200px; margin: auto; padding: 20px; }
+        
+        .grid-comandos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .item-chave {
+            background: var(--card);
+            padding: 25px;
+            border-radius: 12px;
+            border-top: 4px solid var(--blue);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comando-nome { color: var(--blue); font-family: monospace; font-size: 1.5em; font-weight: bold; margin-bottom: 10px; }
+        .descricao { font-size: 0.95em; color: #ccc; flex-grow: 1; }
+        .exemplo-box { background: var(--code-bg); padding: 10px; border-radius: 6px; margin-top: 15px; border-left: 3px solid #555; }
+        .exemplo-box code { color: #0f0; font-family: monospace; font-size: 0.9em; }
+
+        .btn-nav {
+            display: inline-block; margin-top: 20px; padding: 15px 30px; 
+            background: var(--blue); color: white; text-decoration: none; 
+            border-radius: 50px; font-weight: bold; transition: 0.3s;
+        }
+        .btn-nav:hover { background: #0088cc; }
+        
+        h2 { border-left: 5px solid var(--blue); padding-left: 15px; margin-top: 50px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo-box"><span class="logo-text">>_</span></div>
+    <h1>Web-UniLine <span style="color:var(--blue)">v1.0</span></h1>
+    <p class="lema">"Se tem uma linha, tem história!"</p>
+    <p>Fundação: 11/05/26 | Arquiteto: Yudhi Gerson & Eyder Emanuel</p>
+    <a href="transpilador1.html" class="btn-nav">ACESSAR TRANSPILADOR</a>
+</header>
+
+<div class="container">
+
+    <h2>Palavras-Chave Base</h2>
+    <div class="grid-comandos">
+        <div class="item-chave">
+            <span class="comando-nome">show()</span>
+            <p class="descricao">Comando de saída. Projeta dados na interface. <br><b>Exemplo:</b> <code>show("Olá Mundo")</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">nome = valor</span>
+            <p class="descricao">Atribuição de variável. Guarda informações no sistema. <br><b>Exemplo:</b> <code>pontos = 100</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">waitkb()</span>
+            <p class="descricao">Wait KeyBoard. Pausa a linha e espera o usuário digitar. <br><b>Exemplo:</b> <code>nome = waitkb()</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">if(condicao)</span>
+            <p class="descricao">A estrutura de decisão. Avalia se deve ou não executar o próximo passo. <br><b>Exemplo:</b> <code>if(check == yes)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">elif(condicao)</span>
+            <p class="descricao">Condição intermediária. Checa uma nova possibilidade caso o if falhe. <br><b>Exemplo:</b> <code>elif(check == no)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">else(acao)</span>
+            <p class="descricao">Caminho de falha. Executa caso nenhuma condição anterior seja real. <br><b>Exemplo:</b> <code>else(show("Erro"))</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">then(acao)</span>
+            <p class="descricao">O gatilho da ação. É obrigatório após if/elif para dizer o que fazer. <br><b>Exemplo:</b> <code>if(y) x then(show("ok"))</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">verify(comparacao)</span>
+            <p class="descricao">O motor de lógica. Compara dois valores e retorna obrigatoriamente yes ou no. <br><b>Exemplo:</b> <code>verify(10 == 10)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">yes / no</span>
+            <p class="descricao">Valores Booleanos. <b>yes</b> representa Verdade e <b>no</b> representa Falso. <br><b>Exemplo:</b> <code>resultado = yes</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">wdef</span>
+            <p class="descricao">Will Define. Indica que a variável está vazia, mas será definida depois. <br><b>Exemplo:</b> <code>vida = wdef</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">calculate(conta)</span>
+            <p class="descricao">Resolve operações matemáticas. <br><b>Exemplo:</b> <code>calculate(50 + 20)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">elev</span>
+            <p class="descricao">Operador de potência. <br><b>Exemplo:</b> <code>10 elev 2</code> (Gera 100)</p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">x</span>
+            <p class="descricao">O divisor de comandos. Substitui o Enter. <br><b>Exemplo:</b> <code>comando1 x comando2</code></p>
+        </div>
+    </div>
+
+    <h2>Controle de Fluxo e Loops</h2>
+    <div class="grid-comandos">
+        <div class="item-chave">
+            <span class="comando-nome">for(i=1, i++ until 5)</span>
+            <p class="descricao">Loop contado com incremento. <br><b>Exemplo:</b> <code>for(i=1, i++ until 3): show(i)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">while(1)</span>
+            <p class="descricao">Loop de condição contínua. <br><b>Exemplo:</b> <code>while(ativo == yes): show("Rodando")</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">repeat(n)</span>
+            <p class="descricao">Repete uma ação um número exato de vezes. <br><b>Exemplo:</b> <code>repeat(5): show("Olá")</code></p>
+        </div>
+    </div>
+
+    <h2>Bibliotecas e Funções (ww)</h2>
+    <div class="grid-comandos">
+        <div class="item-chave">
+            <span class="comando-nome">ww (Work With)</span>
+            <p class="descricao">Importa bibliotecas externas. <br><b>Exemplo:</b> <code>ww random</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">verifyBool()</span>
+            <p class="descricao">Compara booleanos usando operações lógicas. <br><b>Exemplo:</b> <code>verifyBool(yes & no)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">intBool() / kwBool()</span>
+            <p class="descricao">Converte booleano para número e vice-versa. <br><b>Exemplo:</b> <code>intBool(yes)</code> (Gera 1)</p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">randomint(a, b)</span>
+            <p class="descricao">Sorteia número inteiro entre a e b. <br><b>Exemplo:</b> <code>randomint(1, 10)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">randomdb(a, b)</span>
+            <p class="descricao">Sorteia número decimal. <br><b>Exemplo:</b> <code>randomdb(0, 1)</code></p>
+        </div>
+        <div class="item-chave">
+            <span class="comando-nome">randomstr(a)</span>
+            <p class="descricao">Gera string aleatória com 'a' letras. <br><b>Exemplo:</b> <code>randomstr(8)</code></p>
+        </div>
+    </div>
+
+</div>
+
+<footer style="text-align: center; padding: 40px; color: #666;">
+    &copy; 2026 UniLine Project | Yudhi Gerson & Eyder Emanuel
+</footer>
+
+</body>
+</html>
