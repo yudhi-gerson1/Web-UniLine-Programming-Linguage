@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web-UniLine v1.1</title>
+<style>
+:root{
+--bg:#0d0d0d;
+--card:#1a1a1a;
+--blue:#14a8ff;
+--text:#f2f2f2;
+--gray:#aaaaaa;
+}
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+body{
+background:var(--bg);
+font-family:Consolas,monospace;
+color:var(--text);
+padding:25px;
+}
+.header{
+text-align:center;
+margin-bottom:40px;
+}
+.logo{
+width:120px;
+height:120px;
+border:4px solid var(--blue);
+border-radius:25px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:48px;
+font-weight:bold;
+margin:0 auto 20px auto;
+color:var(--blue);
+background:black;
+box-shadow:0 0 25px var(--blue);
+text-shadow:0 0 15px var(--blue);
+}
+.title{font-size:clamp(32px,8vw,58px);
+font-weight:bold;
+}
+.title span{
+color:var(--blue);
+}
+.subtitle{margin-top:15px;font-size:clamp(18px,5vw,28px);
+font-style:italic;
+color:var(--blue);
+}
+.info{margin-top:20px;font-size:clamp(14px,4vw,22px);
+color:var(--gray);
+}
+.section-title{font-size:clamp(28px,6vw,42px);
+margin:50px 0 25px 0;
+padding-left:15px;
+border-left:6px solid var(--blue);
+}
+.cards{
+display:flex;
+flex-direction:column;
+gap:25px;
+}
+.card{
+background:var(--card);
+border:2px solid var(--blue);
+border-radius:25px;
+padding:30px;
+box-shadow:0 0 20px rgba(20,168,255,0.15);
+}
+.keyword{font-size:clamp(26px,6vw,42px);
+font-weight:bold;
+color:var(--blue);
+margin-bottom:20px;
+}
+.desc{font-size:clamp(15px,4vw,22px);
+line-height:1.6;
+color:#dddddd;
+}
+.code{margin-top:20px;background:black;padding:20px;border-radius:15px;color:#00ffee;white-space:pre-wrap;font-size:clamp(13px,3.5vw,18px);
+border:1px solid #333;
+overflow:auto;
+}
+.example{
+margin-top:18px;
+font-size:20px;
+color:#ffffff;
+font-weight:bold;
+}
+.note{
+margin-top:15px;
+font-size:18px;
+color:#bbbbbb;
+font-style:italic;
+}
+.compiler-btn{display:inline-block;margin-top:25px;padding:18px 35px;background:var(--blue);color:white;text-decoration:none;border-radius:999px;font-size:22px;font-weight:bold;box-shadow:0 0 20px rgba(20,168,255,0.5);transition:0.2s;}.compiler-btn:hover{transform:scale(1.05);filter:brightness(1.15);}.footer{
+margin-top:60px;
+text-align:center;
+font-size:20px;
+color:#777777;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="logo">&gt;_</div>
+<div class="title">Web-UniLine <span>v1.1</span></div>
+<div class="subtitle">"Se tem uma linha, tem história!"</div>
+<div class="info">Fundação: 13/05/26 | Biblioteca: WW Intermediary</div>
+<a href="intermediary1.html" class="compiler-btn">ACESSAR COMPILADOR</a>
+</div>
+
+<h1 class="section-title">Palavras-Chave Base</h1>
+
+<div class="cards">
+
+<div class="card">
+<div class="keyword">fn</div>
+<div class="desc">Sistema de funções da UniLine.</div>
+<div class="example">Exemplo 1 — Função simples</div>
+<div class="code">fn printarOla: x show("Olá") x call(printarOla)</div>
+<div class="example">Exemplo 2 — Parâmetro</div>
+<div class="code">fn printarNumero[numero]: x show(numero) x call(printarNumero[1])</div>
+</div>
+
+<div class="card">
+<div class="keyword">opinion</div>
+<div class="desc">Sistema de comentários da linguagem.</div>
+<div class="example">Exemplo 1 — Uma linha</div>
+<div class="code">opinion: "Eu realmente amo programar!"</div>
+<div class="example">Exemplo 2 — Várias opiniões</div>
+<div class="code">opinions: "UniLine" x "Python" stopOpinion</div>
+<div class="note">O stopOpinion serve para dizer ao sistema que os comentários terminaram.</div>
+</div>
+
+<div class="card">
+<div class="keyword">crescent / decrescent</div>
+<div class="desc">Organiza números em ordem crescente ou decrescente.</div>
+<div class="example">Exemplo 1 — Crescente</div>
+<div class="code">crescent(1, 9, 4, 5, 2)
+
+Saída:
+1, 2, 4, 5, 9</div>
+<div class="example">Exemplo 2 — Decrescente</div>
+<div class="code">decrescent(1, 9, 4, 5, 2)
+
+Saída:
+9, 5, 4, 2, 1</div>
+</div>
+
+<div class="card">
+<div class="keyword">choose</div>
+<div class="desc">Escolhe itens aleatoriamente.</div>
+<div class="example">Exemplo 1 — Uma escolha</div>
+<div class="code">choose(1, 2, 3, 4, 5)</div>
+<div class="example">Exemplo 2 — Duas escolhas</div>
+<div class="code">choose(1, 2, 3, 4, 5)[2]</div>
+<div class="note">A saída muda a cada execução.</div>
+</div>
+
+<div class="card">
+<div class="keyword">wait / waitms</div>
+<div class="desc">Pausa o terminal por um tempo determinado.</div>
+<div class="example">Exemplo 1 — Segundos</div>
+<div class="code">wait(5) x show("5 segundos!")</div>
+<div class="example">Exemplo 2 — Milissegundos</div>
+<div class="code">waitms(5000) x show("5 segundos = 5000 milissegundos!")</div>
+</div>
+
+</div>
+
+<div class="footer">
+UniLine v1.1 - Biblioteca Intermediary - Criado por Yudhi Gerson
+</div>
+
+</body>
+</html>
