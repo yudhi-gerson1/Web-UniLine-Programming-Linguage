@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Web-UniLine v1.2 - ww arrays</title>
+
+<style>
+
+:root{
+--bg:#1a1a2e;
+--panel:#0f3460;
+--dark:#16213e;
+--blue:#00a8ff;
+--cyan:#4cc9f0;
+--green:#00ff88;
+--text:#e0e0e0;
+--error:#ff4d4d;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:var(--bg);
+color:var(--text);
+font-family:Consolas,monospace;
+padding:20px;
+}
+
+.header{
+text-align:center;
+margin-bottom:30px;
+}
+
+.logo{
+width:120px;
+height:120px;
+margin:auto;
+border:4px solid var(--blue);
+border-radius:20px;
+display:flex;
+align-items:center;
+justify-content:center;
+background:var(--dark);
+font-size:52px;
+font-weight:bold;
+color:var(--blue);
+box-shadow:0 0 25px var(--blue);
+text-shadow:0 0 15px var(--blue);
+}
+
+.lema{
+margin-top:15px;
+font-style:italic;
+color:var(--cyan);
+font-size:20px;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+background:var(--panel);
+padding:25px;
+border-radius:18px;
+border:2px solid var(--blue);
+box-shadow:0 0 20px rgba(0,168,255,.2);
+}
+
+.title{
+font-size:28px;
+margin-bottom:20px;
+color:var(--blue);
+}
+
+textarea{
+width:100%;
+height:240px;
+background:var(--bg);
+color:#00ff41;
+border:2px solid var(--blue);
+border-radius:12px;
+padding:15px;
+resize:none;
+outline:none;
+font-size:15px;
+font-family:Consolas,monospace;
+}
+
+.buttons{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+button{
+flex:1;
+padding:14px;
+background:var(--blue);
+color:white;
+border:none;
+border-radius:12px;
+font-size:17px;
+font-weight:bold;
+cursor:pointer;
+}
+
+button:hover{
+filter:brightness(1.1);
+}
+
+#output{
+margin-top:20px;
+background:var(--dark);
+border-left:5px solid var(--blue);
+border-radius:12px;
+padding:15px;
+min-height:220px;
+white-space:pre-wrap;
+overflow:auto;
+color:var(--green);
+}
+
+.error{
+color:var(--error);
+font-weight:bold;
+}
+
+.footer{
+margin-top:30px;
+text-align:center;
+color:#888;
+font-size:15px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<div class="logo">&gt;_</div>
+<div class="lema">"Se tem uma linha, tem história!"</div>
+</div>
+
+<div class="container">
+
+<div class="title">
+Web-UniLine v1.2 - Biblioteca ww arrays
+</div>
+
+<textarea id="codeInput" placeholder='Exemplo:
+
+impares = [1, 3, 5, 7, 9] x
+position(3, impares)
+
+'></textarea>
+
+<div class="buttons">
+<button onclick="runUniLine()">EXECUTAR x</button>
+<button onclick="clearTerminal()">LIMPAR</button>
+</div>
+
+<div id="output">
+>_ UniLine Arrays v1.2 inicializado...
+</div>
+
+</div>
+
+<div class="footer">
+Criado por Yudhi Gerson & Eyder
+</div>
+
+<script>
+
+const output = document.getElementById("output");
+
+let vars = {};
+let opinionMode = false;
+
+function log(text){
+
+output.innerHTML += "\n" + text;
+output.scrollTop = output.scrollHeight;
+
+}
+
+function clearTerminal(){
+
+output.innerHTML = ">_ Terminal limpo...";
+vars = {};
+opinionMode = false;
+
+}
+
+function error(name,message){
+
+throw {
+name:name,
+message:message
+};
+
+}
+
+function splitCommands(code){
+
+let commands = [];
+let current = "";
+let quote = null;
+
+for(let i=0;i<code.length;i++){
+
+let c = code[i];
+
+if(c === '"' || c === "'"){
+
+if(quote === c){
+quote = null;
+}else if(!quote){
+quote = c;
+}
+
+}
+
+if(!quote && c === "x"){
+
+let before = code[i-1] || " ";
+let after = code[i+1] || " ";
+
+if(before.trim()==="" && after.trim()===""){
+
+if(current.trim() === ""){
+
+error(
+"XError",
+"XError: expected a command before 'x'."
+);
+
+}
+
+commands.push(current.trim());
+current = "";
+continue;
+
+}
+
+}
+
+current += c;
+
+}
+
+if(current.trim() !== ""){
+
+commands.push(current.trim());
+
+}else if(code.trim().endsWith("x")){
+
+error(
+"XError",
+"XError: expected a command after 'x'."
+);
+
+}
+
+return commands;
+
+}
+
+function parseArray(text){
+
+try{
+
+let parsed = JSON.parse(text);
+
+if(!Array.isArray(parsed)){
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+return parsed;
+
+}catch{
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+}
+
+function getVariable(name){
+
+if(!(name in vars)){
+
+error(
+"VariableError",
+`VariableError: "${name}" is not defined.`
+);
+
+}
+
+return vars[name];
+
+}
+
+async function execute(cmd){
+
+if(opinionMode){
+
+if(cmd === "stopOpinion"){
+opinionMode = false;
+}
+
+return;
+
+}
+
+if(cmd.startsWith("opinion:")){
+return;
+}
+
+if(cmd.startsWith("opinions:")){
+opinionMode = true;
+return;
+}
+
+if(cmd === "stopOpinion"){
+return;
+}
+
+if(
+cmd.includes("=") &&
+!cmd.includes("==")
+){
+
+let idx = cmd.indexOf("=");
+
+let name = cmd.substring(0,idx).trim();
+let value = cmd.substring(idx+1).trim();
+
+if(!value.startsWith("[")){
+
+error(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+vars[name] = parseArray(value);
+
+return;
+
+}
+
+if(cmd.startsWith("position(")){
+
+if(!cmd.endsWith(")")){
+
+error(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+
+}
+
+let match = cmd.match(/^position\((.*),(.*)\)$/);
+
+if(!match){
+
+error(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+let pos = Number(match[1].trim());
+
+if(isNaN(pos)){
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+let arrName = match[2].trim();
+
+let arr = getVariable(arrName);
+
+if(pos === 0){
+
+error(
+"AnyError",
+"AnyError: Index starts at 1."
+);
+
+}
+
+let value = arr[pos - 1];
+
+if(value === undefined){
+
+error(
+"AnyError",
+"AnyError: Position does not exist."
+);
+
+}
+
+log("> " + value);
+
+return;
+
+}
+
+if(cmd.startsWith("total(")){
+
+if(!cmd.endsWith(")")){
+
+error(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+
+}
+
+let match = cmd.match(/^total\((.*)\)$/);
+
+if(!match){
+
+error(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+let arr = getVariable(match[1].trim());
+
+let total = 0;
+
+for(let item of arr){
+
+if(typeof item !== "number"){
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+total += item;
+
+}
+
+log("> " + total);
+
+return;
+
+}
+
+if(cmd.startsWith("read(")){
+
+if(!cmd.endsWith(")")){
+
+error(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+
+}
+
+let match = cmd.match(/^read\((.*),(.*)\)$/);
+
+if(!match){
+
+error(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+let arr = getVariable(match[1].trim());
+
+let seconds = Number(match[2].trim());
+
+if(isNaN(seconds)){
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+for(let item of arr){
+
+log("> " + item);
+
+await new Promise(resolve =>
+setTimeout(resolve, seconds * 1000)
+);
+
+}
+
+return;
+
+}
+
+if(cmd.startsWith("divisibility(")){
+
+if(!cmd.endsWith(")")){
+
+error(
+"UnclosedError",
+"UnclosedError: expected ')' after a function."
+);
+
+}
+
+let match = cmd.match(/^divisibility\((.*),(.*)\)$/);
+
+if(!match){
+
+error(
+"SyntaxError",
+"SyntaxError: Unknown command detected."
+);
+
+}
+
+let arr = getVariable(match[1].trim());
+
+let divisor = Number(match[2].trim());
+
+if(isNaN(divisor)){
+
+error(
+"AnyError",
+"AnyError: Fatal Error while parsing."
+);
+
+}
+
+if(divisor === 0){
+
+error(
+"DivisionError",
+"DivisionError: Cannot divide by 0."
+);
+
+}
+
+let filtered = arr.filter(
+n => typeof n === "number" && n % divisor === 0
+);
+
+log("> " + filtered.join(", "));
+
+return;
+
+}
+
+error(
+"GivingUpError",
+"GivingUpError: The error is too fatal that the transpiler gives up executing your project."
+);
+
+}
+
+async function runUniLine(){
+
+output.innerHTML =
+">_ Executando UniLine v1.2...\n";
+
+let code =
+document.getElementById("codeInput").value;
+
+try{
+
+let commands = splitCommands(code);
+
+for(let cmd of commands){
+
+await execute(cmd);
+
+}
+
+}catch(e){
+
+log(
+`<span class="error">${e.message}</span>`
+);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
