@@ -313,6 +313,18 @@ return vars[name];
 
 }
 
+function getArray(value){
+
+value = value.trim();
+
+if(value.startsWith("[")){
+return parseArray(value);
+}
+
+return getVariable(value);
+
+}
+
 async function execute(cmd){
 
 if(opinionMode){
@@ -363,16 +375,71 @@ return;
 
 }
 
-if(cmd.startsWith("position(")){
+if(cmd.startsWith("show(")){
 
-if(!cmd.endsWith(")")){
+let match = cmd.match(/^show\((.*)\)$/);
+
+if(!match){
 
 error(
-"UnclosedError",
-"UnclosedError: expected ')' after a function."
+"SyntaxError",
+"SyntaxError: Unknown command detected."
 );
 
 }
+
+let value = match[1].trim();
+
+if(value.startsWith("[")){
+
+let arr = parseArray(value);
+log("> " + arr.join(", "));
+return;
+
+}
+
+if(
+(value.startsWith('"') && value.endsWith('"')) ||
+(value.startsWith("'") && value.endsWith("'"))
+){
+
+log("> " + value.slice(1,-1));
+return;
+
+}
+
+if(value in vars){
+
+let variable = vars[value];
+
+if(Array.isArray(variable)){
+
+log("> " + variable.join(", "));
+
+}else{
+
+log("> " + variable);
+
+}
+
+return;
+
+}
+
+if(!isNaN(value)){
+
+log("> " + Number(value));
+return;
+
+}
+
+log("> " + value);
+
+return;
+
+}
+
+if(cmd.startsWith("position(")){
 
 let match = cmd.match(/^position\((.*),(.*)\)$/);
 
@@ -396,9 +463,7 @@ error(
 
 }
 
-let arrName = match[2].trim();
-
-let arr = getVariable(arrName);
+let arr = getArray(match[2]);
 
 if(pos === 0){
 
@@ -428,15 +493,6 @@ return;
 
 if(cmd.startsWith("total(")){
 
-if(!cmd.endsWith(")")){
-
-error(
-"UnclosedError",
-"UnclosedError: expected ')' after a function."
-);
-
-}
-
 let match = cmd.match(/^total\((.*)\)$/);
 
 if(!match){
@@ -448,7 +504,7 @@ error(
 
 }
 
-let arr = getVariable(match[1].trim());
+let arr = getArray(match[1]);
 
 let total = 0;
 
@@ -475,15 +531,6 @@ return;
 
 if(cmd.startsWith("read(")){
 
-if(!cmd.endsWith(")")){
-
-error(
-"UnclosedError",
-"UnclosedError: expected ')' after a function."
-);
-
-}
-
 let match = cmd.match(/^read\((.*),(.*)\)$/);
 
 if(!match){
@@ -495,7 +542,7 @@ error(
 
 }
 
-let arr = getVariable(match[1].trim());
+let arr = getArray(match[1]);
 
 let seconds = Number(match[2].trim());
 
@@ -508,13 +555,17 @@ error(
 
 }
 
-for(let item of arr){
+for(let i=0;i<arr.length;i++){
 
-log("> " + item);
+log("> " + arr[i]);
+
+if(i < arr.length - 1){
 
 await new Promise(resolve =>
 setTimeout(resolve, seconds * 1000)
 );
+
+}
 
 }
 
@@ -523,15 +574,6 @@ return;
 }
 
 if(cmd.startsWith("divisibility(")){
-
-if(!cmd.endsWith(")")){
-
-error(
-"UnclosedError",
-"UnclosedError: expected ')' after a function."
-);
-
-}
 
 let match = cmd.match(/^divisibility\((.*),(.*)\)$/);
 
@@ -544,7 +586,7 @@ error(
 
 }
 
-let arr = getVariable(match[1].trim());
+let arr = getArray(match[1]);
 
 let divisor = Number(match[2].trim());
 
