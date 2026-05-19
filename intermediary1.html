@@ -3,261 +3,308 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UniLine v1.2 - Intermediary Safe Engine</title>
+<title>UniLine v1.2 - Full Error Handling</title>
+
 <style>
-:root {
-    --bg: #0d0d0d;
-    --panel: #111;
-    --blue: #00aaff;
-    --cyan: #00ffee;
-    --text: #e0e0e0;
-    --green: #00ff88;
-    --error: #ff5555;
-    --warning: #ffaa00;
+:root{
+    --bg:#0d0d0d;
+    --panel:#111;
+    --blue:#00aaff;
+    --cyan:#00ffee;
+    --text:#e0e0e0;
+    --green:#00ff88;
+    --error:#ff5555;
 }
 
-body {
-    margin: 0; padding: 20px;
-    background: var(--bg);
-    font-family: 'Consolas', 'Monaco', monospace;
-    color: var(--text);
-    display: flex; flex-direction: column; align-items: center;
+body{
+    margin:0;
+    padding:20px;
+    background:var(--bg);
+    font-family:Consolas,monospace;
+    color:var(--text);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 }
 
-.header { display: flex; flex-direction: column; align-items: center; margin-bottom: 25px; }
-
-.logo-box {
-    width: 90px; height: 90px;
-    border: 4px solid var(--blue);
-    border-radius: 12px; /* Logo Quadrado */
-    background: black;
-    box-shadow: 0 0 15px rgba(0, 170, 255, 0.4);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 42px; font-weight: bold; color: var(--blue);
+.header{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin-bottom:25px;
 }
 
-.lema { margin-top: 10px; color: var(--blue); font-style: italic; }
-
-.terminal {
-    width: 100%; max-width: 900px;
-    background: black;
-    border: 2px solid #222;
-    border-radius: 15px;
-    padding: 20px;
-    box-sizing: border-box;
+.logo-box{
+    width:90px;
+    height:90px;
+    border:4px solid var(--blue);
+    border-radius:14px;
+    background:black;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:42px;
+    font-weight:bold;
+    color:var(--blue);
+    box-shadow:0 0 18px rgba(0,170,255,.4);
 }
 
-textarea {
-    width: 100%; height: 200px;
-    background: var(--panel);
-    border: 2px solid var(--blue);
-    border-radius: 12px;
-    padding: 15px;
-    box-sizing: border-box;
-    font-size: 16px; color: var(--cyan);
-    outline: none; font-family: inherit;
+.lema{
+    margin-top:10px;
+    color:var(--blue);
+    font-style:italic;
 }
 
-button {
-    margin-top: 15px; width: 100%;
-    padding: 15px; border: none; border-radius: 10px;
-    background: var(--blue); color: white;
-    font-size: 18px; font-weight: bold; cursor: pointer;
+.terminal{
+    width:100%;
+    max-width:950px;
+    background:black;
+    border:2px solid #222;
+    border-radius:15px;
+    padding:20px;
+    box-sizing:border-box;
 }
 
-#output {
-    margin-top: 20px; background: #050505;
-    border: 1px solid #222; border-radius: 10px;
-    padding: 20px; min-height: 200px;
-    white-space: pre-wrap; color: var(--green);
-    font-size: 14px;
+textarea{
+    width:100%;
+    height:240px;
+    resize:none;
+    background:var(--panel);
+    border:2px solid var(--blue);
+    border-radius:12px;
+    padding:15px;
+    box-sizing:border-box;
+    color:var(--cyan);
+    font-size:16px;
+    font-family:inherit;
+    outline:none;
 }
 
-.err-txt { color: var(--error); }
+button{
+    width:100%;
+    margin-top:15px;
+    padding:15px;
+    border:none;
+    border-radius:10px;
+    background:var(--blue);
+    color:white;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition: 0.3s;
+}
+
+button:hover{
+    background:#0088cc;
+    box-shadow:0 0 10px var(--blue);
+}
+
+#output{
+    margin-top:20px;
+    background:#050505;
+    border:1px solid #222;
+    border-radius:10px;
+    padding:20px;
+    min-height:220px;
+    white-space:pre-wrap;
+    overflow-y:auto;
+    color:var(--green);
+}
+
+.err{
+    color:var(--error);
+    font-weight:bold;
+}
 </style>
 </head>
+
 <body>
 
 <div class="header">
-    <div class="logo-box">>_</div>
+    <div class="logo-box">&gt;_</div>
     <div class="lema">"Se tem uma linha, tem história!"</div>
 </div>
 
 <div class="terminal">
-    <textarea id="code" placeholder='Ex: fn ola: x show("Oi!") x call(ola)'></textarea>
-    <button onclick="runUniLine()">EXECUTAR x</button>
-    <div id="output">>_ Aguardando comando...</div>
+
+<textarea id="code" placeholder='Teste os erros:
+calculate(1 / 0)
+show(naoDefinida)
+print("erro de sintaxe")
+show("oi") x'></textarea>
+
+<button onclick="runUniLine()">EXECUTAR x</button>
+
+<div id="output">&gt;_ UniLine iniciado...</div>
+
 </div>
 
 <script>
 const output = document.getElementById("output");
-let vars = { yes: true, no: false, wdef: null };
+let vars = {};
 let funcs = {};
-let opinionMode = false;
 
-function log(txt, isError = false) {
-    const span = isError ? `<span class="err-txt">${txt}</span>` : txt;
-    output.innerHTML += "\n" + span;
+function resetRuntime(){
+    vars = { yes: true, no: false, wdef: null };
+    funcs = {};
 }
 
-function throwUniError(type, msg) {
-    throw `${type}: ${msg}`;
+function log(text, isError = false){
+    if(isError) output.innerHTML += `\n<span class="err">${text}</span>`;
+    else output.innerHTML += "\n" + text;
+    output.scrollTop = output.scrollHeight;
 }
 
-// 1. Tratamento do separador 'x'
-function splitUniCommands(code) {
-    let cmds = [];
+// Lançador de Erros do Manual
+function throwError(type, message){
+    throw { type: type, msg: message };
+}
+
+function splitCommands(code){
+    let commands = [];
     let current = "";
-    let inQuotes = false;
+    let quote = null;
+    let parentheses = 0;
+    let brackets = 0;
 
-    for (let i = 0; i < code.length; i++) {
-        if (code[i] === '"') inQuotes = !inQuotes;
-        
-        if (code[i] === 'x' && !inQuotes) {
-            let before = code.substring(0, i).trim();
-            let after = code.substring(i + 1).trim();
-            
-            if (before === "") throwUniError("XError", "expected command before 'x'.");
-            if (after === "") throwUniError("XError", "expected command after 'x'.");
-            
-            cmds.push(current.trim());
-            current = "";
-            continue;
+    // Verificação de XError no final do código
+    if(code.trim().endsWith("x")) {
+        throwError("XError", "expected a command after 'x'.");
+    }
+
+    for(let i = 0; i < code.length; i++){
+        let c = code[i];
+        if(c === '"' || c === "'"){
+            if(quote === c) quote = null;
+            else if(!quote) quote = c;
+            current += c; continue;
         }
-        current += code[i];
-    }
-    if (current.trim()) cmds.push(current.trim());
-    return cmds;
-}
-
-async function execute(cmd) {
-    if (!cmd) return;
-
-    // Sistema de Opinião (Comentários)
-    if (cmd === "stopOpinion") { opinionMode = false; return; }
-    if (opinionMode) return;
-    if (cmd.startsWith("opinion:")) return;
-    if (cmd.startsWith("opinions:")) { opinionMode = true; return; }
-
-    // Parenteses abertos?
-    if ((cmd.match(/\(/g) || []).length !== (cmd.match(/\)/g) || []).length) {
-        throwUniError("UnclosedError", "expected ')' after a function.");
-    }
-
-    // show() e calculate()
-    if (cmd.startsWith("show(") || cmd.startsWith("calculate(")) {
-        let content = cmd.match(/\((.*)\)/)[1];
-        // Substituir elev por **
-        let cleanContent = content.replace(/\belev\b/g, "**");
-        
-        try {
-            // Lógica de Divisão por Zero
-            if (cleanContent.includes("/ 0") || cleanContent.includes("/0")) {
-                throwUniError("DivisionError", "Cannot divide by 0.");
+        if(!quote){
+            if(c === "(") parentheses++;
+            if(c === ")") parentheses--;
+            if(c === "[") brackets++;
+            if(c === "]") brackets--;
+            
+            if(c === "x" && parentheses === 0 && brackets === 0){
+                let before = code[i-1] || " ";
+                let after = code[i+1] || " ";
+                if(/\s/.test(before) && /\s/.test(after)){
+                    if(current.trim() === "") throwError("XError", "expected a command before 'x'.");
+                    commands.push(current.trim());
+                    current = ""; continue;
+                }
             }
-            
-            // Troca variáveis UniLine por valores JS
-            let evalContext = cleanContent.replace(/[a-zA-Z_]+/g, m => vars[m] !== undefined ? vars[m] : m);
-            let result = eval(evalContext);
-            log("> " + result);
-        } catch(e) {
-            if(typeof e === 'string' && e.includes("DivisionError")) throw e;
-            throwUniError("VariableError", `"${content}" is not defined.`);
         }
-        return;
+        current += c;
     }
-
-    // Variáveis
-    if (cmd.includes("=") && !cmd.includes("==") && !cmd.startsWith("fn ")) {
-        let [name, val] = cmd.split("=").map(s => s.trim());
-        vars[name] = eval(val.replace(/\byes\b/g, "true").replace(/\bno\b/g, "false"));
-        return;
-    }
-
-    // waitkb()
-    if (cmd === "waitkb()") {
-        vars.input = prompt("UniLine Input:") || "";
-        log("> Input recebido.");
-        return;
-    }
-
-    // fn (função)
-    if (cmd.startsWith("fn ")) {
-        let [header, ...bodyParts] = cmd.replace("fn ", "").split(":");
-        let body = bodyParts.join(":").trim();
-        if (header.includes("[")) {
-            let name = header.split("[")[0].trim();
-            let param = header.match(/\[(.*?)\]/)[1];
-            funcs[name] = { body, param };
-        } else {
-            funcs[header.trim()] = { body, param: null };
-        }
-        return;
-    }
-
-    // call()
-    if (cmd.startsWith("call(")) {
-        let name = cmd.match(/call\((.*)\)/)[1];
-        let arg = null;
-        if (name.includes("[")) {
-            arg = name.match(/\[(.*)\]/)[1];
-            name = name.split("[")[0];
-        }
-        if (!funcs[name]) throwUniError("VariableError", `"${name}" is not defined.`);
-        
-        if (arg && funcs[name].param) vars[funcs[name].param] = eval(arg);
-        
-        let subcmds = splitUniCommands(funcs[name].body);
-        for (let sub of subcmds) await execute(sub);
-        return;
-    }
-
-    // crescent / decrescent
-    if (cmd.startsWith("crescent(") || cmd.startsWith("decrescent(")) {
-        let isDec = cmd.startsWith("dec");
-        let vals = cmd.match(/\((.*)\)/)[1].split(",").map(n => Number(n.trim()));
-        vals.sort((a,b) => isDec ? b - a : a - b);
-        log("> " + vals.join(", "));
-        return;
-    }
-
-    // choose()
-    if (cmd.startsWith("choose(")) {
-        let items = cmd.match(/\((.*?)\)/)[1].split(",").map(i => i.trim());
-        let qtyMatch = cmd.match(/\](\d+)\]/); // Suporte para [n]
-        let qty = qtyMatch ? parseInt(qtyMatch[1]) : 1;
-        let chosen = [];
-        for(let i=0; i<qty; i++) chosen.push(items[Math.floor(Math.random()*items.length)]);
-        log("> " + chosen.join(", "));
-        return;
-    }
-
-    // wait / waitms
-    if (cmd.startsWith("wait")) {
-        let ms = cmd.includes("ms") ? parseInt(cmd.match(/\((.*)\)/)[1]) : parseInt(cmd.match(/\((.*)\)/)[1]) * 1000;
-        await new Promise(r => setTimeout(r, ms));
-        return;
-    }
-
-    // Se nada funcionar: GivingUpError
-    throwUniError("GivingUpError", "The error is too fatal that the transpiler gives up executing your project.");
+    if(current.trim()) commands.push(current.trim());
+    return commands;
 }
 
-async function runUniLine() {
-    output.innerHTML = ">_ UniLine iniciado...";
-    opinionMode = false;
-    let code = document.getElementById("code").value;
+function parsePrimitive(value) {
+    value = value.trim();
+    if(value === "yes") return true;
+    if(value === "no") return false;
+    if(value === "wdef") return null;
+    if(!isNaN(value) && value !== "") return Number(value);
+    if((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+        return value.slice(1, -1);
+    }
+    if(value in vars) return vars[value];
     
+    // Se chegou aqui e parece uma variável, mas não existe: VariableError
+    if(/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)){
+        throwError("VariableError", `"${value}" is not defined.`);
+    }
+    
+    return value;
+}
+
+function safeMath(exp) {
+    exp = exp.replace(/\belev\b/g, "**").trim();
+    
+    // Verificação de Parênteses: UnclosedError
+    let openP = (exp.match(/\(/g) || []).length;
+    let closeP = (exp.match(/\)/g) || []).length;
+    if(openP !== closeP) throwError("UnclosedError", "expected ')' after a function.");
+
+    let processedExp = exp.replace(/\b[a-zA-Z_][a-zA-Z0-9_]*\b/g, (name) => {
+        if (name === "true" || name === "false" || name === "null") return name;
+        if (name === "yes") return "true";
+        if (name === "no") return "false";
+        if (name === "wdef") return "null";
+        if (name in vars) return JSON.stringify(vars[name]);
+        
+        // Se não for palavra reservada nem variável: VariableError
+        throwError("VariableError", `"${name}" is not defined.`);
+    });
+
+    // DivisionError
+    if (processedExp.match(/\/\s*0(?!\.)/)) throwError("DivisionError", "Cannot divide by 0.");
+
     try {
-        let commands = splitUniCommands(code);
-        for (let c of commands) {
-            await execute(c);
-        }
-    } catch (e) {
-        log(e, true);
+        return new Function(`"use strict"; return (${processedExp})`)();
+    } catch {
+        return parsePrimitive(exp);
+    }
+}
+
+async function execute(command){
+    command = command.trim();
+    if(!command) return;
+
+    // Verificação de UnclosedError geral
+    if((command.match(/\(/g) || []).length !== (command.match(/\)/g) || []).length){
+        throwError("UnclosedError", "expected ')' after a function.");
+    }
+
+    // Atribuição
+    if(command.includes("=") && !command.includes("==") && !command.startsWith("fn ")){
+        let parts = command.split("=");
+        let name = parts[0].trim();
+        let valRaw = parts.slice(1).join("=").trim();
+        vars[name] = safeMath(valRaw);
+        return;
+    }
+
+    // Comandos Conhecidos mas com erro de SyntaxError
+    if(command.startsWith("print(")) throwError("SyntaxError", "Unknown command detected."); // UniLine usa show()
+
+    if(command.startsWith("show(")){
+        let match = command.match(/^show\((.*)\)$/);
+        if(!match) throwError("SyntaxError", "Unknown command detected.");
+        let res = safeMath(match[1].trim());
+        log("> " + (Array.isArray(res) ? res.join(", ") : res));
+        return;
+    }
+
+    if(command.startsWith("calculate(")){
+        let match = command.match(/^calculate\((.*)\)$/);
+        if(!match) throwError("SyntaxError", "Unknown command detected.");
+        let content = match[1].trim();
+        const temOperador = /[+\-*/%]|elev/.test(content);
+        const eNumero = !isNaN(parsePrimitive(content));
+        log("> " + (temOperador || eNumero ? safeMath(content) : parsePrimitive(content)));
+        return;
+    }
+
+    // GivingUpError para comandos completamente irreconhecíveis
+    throwError("GivingUpError", "The error is too fatal that the transpiler gives up executing your project.");
+}
+
+async function runUniLine(){
+    output.innerHTML = ">_ Executando UniLine...";
+    resetRuntime();
+    try {
+        let code = document.getElementById("code").value;
+        if(!code.trim()) return;
+        let cmds = splitCommands(code);
+        for(let c of cmds) await execute(c);
+    } catch(e) {
+        if(e.type) log(`${e.type}: ${e.msg}`, true);
+        else log(`AnyError: Fatal Error while parsing.`, true);
     }
 }
 </script>
 </body>
 </html>
-
