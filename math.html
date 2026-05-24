@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web-UniLine v1.3</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e24;
+            --bg-panel: #2b2b36;
+            --accent-blue: #00bfff;
+            --text-main: #ffffff;
+            --text-muted: #a0a0b0;
+            --error-red: #ff4d4d;
+            --success-green: #00ff88;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Cabecalho inspirado na sua foto */
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            border-bottom: 1px solid var(--accent-blue);
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--accent-blue);
+            margin: 0 auto 15px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--text-main);
+            border-radius: 4px;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+        
+        header h1 span {
+            color: var(--accent-blue);
+        }
+
+        .slogan {
+            color: var(--accent-blue);
+            font-style: italic;
+            margin: 10px 0;
+            font-size: 18px;
+        }
+
+        .credits {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .btn-run {
+            background-color: var(--accent-blue);
+            color: #000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0, 191, 255, 0.3);
+            transition: 0.2s;
+        }
+
+        .btn-run:hover {
+            transform: scale(1.05);
+        }
+
+        /* Area de Codigo e Terminal */
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        @media(min-width: 768px) {
+            .workspace { flex-direction: row; }
+        }
+
+        .panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-panel);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-blue);
+            overflow: hidden;
+        }
+
+        .panel-title {
+            padding: 10px 15px;
+            background-color: rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            font-family: monospace;
+            color: var(--text-muted);
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            color: var(--text-main);
+            border: none;
+            padding: 15px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+        }
+
+        #terminal {
+            flex: 1;
+            padding: 15px;
+            font-family: 'Fira Code', Consolas, monospace;
+            font-size: 15px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: var(--success-green);
+        }
+
+        .error { color: var(--error-red); font-weight: bold; }
+        .sys { color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo">&gt;_</div>
+        <h1>Web-UniLine <span>v1.3</span></h1>
+        <p class="slogan">"Se tem uma linha, tem história!"</p>
+        <p class="credits">Fundação: 11/05/26 | Arquitetos: Yudhi Gerson & Eyder Emanuel</p>
+        <button class="btn-run" onclick="rodarUniLine()">Compilar Código</button>
+    </header>
+
+    <div class="workspace">
+        <div class="panel">
+            <div class="panel-title">Editor (script.uni)</div>
+            <textarea id="codigo" spellcheck="false">
+show("Testando biblioteca Math:")
+binario = 1001b
+binary(binario)
+x
+fracao = 1int2db3
+d(fracao)[15]
+x
+calculate(9 mod 5)</textarea>
+        </div>
+        <div class="panel">
+            <div class="panel-title">Terminal</div>
+            <div id="terminal"><span class="sys">Pronto. Aguardando execução...</span></div>
+        </div>
+    </div>
+
+    <script>
+        // Engine Segura (Sem eval)
+        let variaveis = {};
+
+        function print(texto, tipo = "normal") {
+            const term = document.getElementById('terminal');
+            if(tipo === "error") term.innerHTML += `<span class="error">${texto}</span>\n`;
+            else if(tipo === "sys") term.innerHTML += `<span class="sys">${texto}</span>\n`;
+            else term.innerHTML += `${texto}\n`;
+        }
+
+        function safeParse(valStr) {
+            valStr = valStr.trim();
+            
+            // Strings
+            if (/^["'].*["']$/.test(valStr)) return { type: 'string', value: valStr.slice(1, -1) };
+            
+            // Tipo Binário (com sufixo b)
+            if (/^[0-1]+b$/.test(valStr)) {
+                let bin = valStr.slice(0, -1);
+                return { type: 'binary', value: parseInt(bin, 2), original: bin };
+            }
+
+            // Frações Mistas (1int2db3 ou apenas 2db3)
+            if (valStr.includes('int') || valStr.includes('db')) {
+                let partesInt = valStr.split('int');
+                let intPart = partesInt.length > 1 ? parseFloat(partesInt[0] || "0") : 0;
+                let resto = partesInt.length > 1 ? partesInt[1] : partesInt[0];
+
+                if (resto.includes('db')) {
+                    let partesDb = resto.split('db');
+                    let num = parseFloat(partesDb[0] || "0");
+                    let den = parseFloat(partesDb[1]);
+                    if (den === 0) throw "DivisionError: Cannot divide by 0.";
+                    return { type: 'number', value: intPart + (num / den) };
+                }
+            }
+
+            // Números Normais
+            if (!isNaN(valStr)) return { type: 'number', value: parseFloat(valStr) };
+
+            // Variáveis
+            if (variaveis[valStr] !== undefined) return variaveis[valStr];
+
+            throw `VariableError: "${valStr}" is not defined.`;
+        }
+
+        function rodarUniLine() {
+            document.getElementById('terminal').innerHTML = '';
+            variaveis = {};
+            let cod = document.getElementById('codigo').value;
+            let linhas = cod.split(/x|\n/).map(l => l.trim());
+
+            try {
+                if (cod.trim().endsWith('x')) throw "XError: expected a command after 'x'.";
+
+                for (let cmd of linhas) {
+                    if (!cmd) continue;
+
+                    // Unclosed Error
+                    if (cmd.includes('(') && !cmd.includes(')')) throw "UnclosedError: expected ')' after a function.";
+
+                    // Atribuição de Variável
+                    let matchVar = cmd.match(/^([a-zA-Z_]\w*)\s*=\s*(.+)$/);
+                    if (matchVar) {
+                        variaveis[matchVar[1]] = safeParse(matchVar[2]);
+                        continue;
+                    }
+
+                    // show()
+                    let matchShow = cmd.match(/^show\((.*)\)$/);
+                    if (matchShow) {
+                        let parsed = safeParse(matchShow[1]);
+                        print(parsed.value);
+                        continue;
+                    }
+
+                    // waitkb()
+                    if (cmd === "waitkb()") {
+                        let input = prompt("UniLine waitkb():");
+                        print(`[Input recebido]: ${input}`);
+                        continue;
+                    }
+
+                    // binary()
+                    let matchBin = cmd.match(/^binary\((.*)\)$/);
+                    if (matchBin) {
+                        let parsed = safeParse(matchBin[1]);
+                        if (parsed.type === 'binary') {
+                            print(`Saída: ${parsed.original}`);
+                        } else {
+                            print(`Saída: ${Math.floor(parsed.value).toString(2)}`);
+                        }
+                        continue;
+                    }
+
+                    // d()[x]
+                    let matchD = cmd.match(/^d\((.*?)\)\[(.*?)\]$/);
+                    if (matchD) {
+                        let val = safeParse(matchD[1]).value;
+                        let casas = safeParse(matchD[2]).value;
+                        print(`Saída: ${val.toFixed(casas)}`);
+                        continue;
+                    }
+
+                    // root()[indice, casas]
+                    let matchRoot = cmd.match(/^root\((.*?)\)\[(.*?)\]$/);
+                    if (matchRoot) {
+                        let num = safeParse(matchRoot[1]).value;
+                        let config = matchRoot[2].split(',');
+                        let indice = safeParse(config[0]).value;
+                        let casas = safeParse(config[1]).value;
+                        print(`Saída: ${Math.pow(num, 1/indice).toFixed(casas)}`);
+                        continue;
+                    }
+
+                    // factorial()
+                    let matchFat = cmd.match(/^factorial\((.*?)\)$/);
+                    if (matchFat) {
+                        let num = safeParse(matchFat[1]).value;
+                        let fat = 1, seq = [];
+                        for(let i=1; i<=num; i++){ fat*=i; seq.push(i); }
+                        print(`Saída: ${fat}`);
+                        continue;
+                    }
+
+                    // calculate() Seguro
+                    let matchCalc = cmd.match(/^calculate\((.*)\)$/);
+                    if (matchCalc) {
+                        let conta = matchCalc[1];
+                        let operador = conta.match(/^(.+?)\s*(\+|-|\*|\/|mod)\s*(.+)$/);
+                        
+                        if (!operador) {
+                            print(`> ${conta}`); // Proteção contra eval (ex: alert("Oi"))
+                            continue;
+                        }
+
+                        try {
+                            let left = safeParse(operador[1]).value;
+                            let op = operador[2].trim();
+                            let right = safeParse(operador[3]).value;
+
+                            if ((op === '/' || op === 'mod') && right === 0) throw "DivisionError: Cannot divide by 0.";
+
+                            let res = 0;
+                            if (op === '+') res = left + right;
+                            if (op === '-') res = left - right;
+                            if (op === '*') res = left * right;
+                            if (op === '/') res = left / right;
+                            if (op === 'mod') res = left % right;
+
+                            print(`Saída: ${res}`);
+                        } catch (e) {
+                            if (typeof e === 'string' && e.includes("DivisionError")) throw e;
+                            print(`> ${conta}`);
+                        }
+                        continue;
+                    }
+
+                    // SyntaxError e GivingUpError
+                    if (cmd.startsWith("print(") || cmd.includes("(")) throw "SyntaxError: Unknown command detected.";
+                    throw "GivingUpError: The error is too fatal that the transpiler gives up executing your project.";
+                }
+
+            } catch (err) {
+                if(typeof err !== "string") print("AnyError: Fatal Error while parsing.", "error");
+                else print(err, "error");
+            }
+        }
+    </script>
+</body>
+</html>
+
