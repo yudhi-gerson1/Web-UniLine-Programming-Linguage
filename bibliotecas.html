@@ -3,207 +3,747 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manual de Bibliotecas - UniLine v1.2</title>
+    <title>Manual Oficial - UniLine v1.3</title>
+
     <style>
-        :root {
-            --bg-deep: #1a1a2e;
-            --bg-card: #16213e;
-            --accent-blue: #00a8ff;
-            --text-main: #e0e0e0;
-            --terminal-green: #00ff41;
-            --warning-orange: #fca311;
+        :root{
+            --bg:#1a1a2e;
+            --card:#16213e;
+            --blue:#00a8ff;
+            --text:#e0e0e0;
+            --green:#00ff41;
+            --orange:#fca311;
         }
 
-        body {
-            background-color: var(--bg-deep);
-            color: var(--text-main);
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        body{
+            background:var(--bg);
+            color:var(--text);
+            font-family:Segoe UI, Arial, sans-serif;
+            margin:0;
+            padding:20px;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
         }
 
-        /* Logotipo Quadrado */
-        .header { text-align: center; margin-bottom: 30px; }
-        .logo-box {
-            width: 80px; height: 80px;
-            border: 4px solid var(--accent-blue);
-            border-radius: 12px;
-            display: flex; justify-content: center; align-items: center;
-            background-color: var(--bg-card);
-            margin: 0 auto 10px;
-        }
-        .logo-text {
-            font-size: 40px; font-weight: bold; color: var(--accent-blue);
-            font-family: 'Courier New', monospace;
-        }
-        .lema { font-style: italic; color: #4cc9f0; font-size: 1.1em; }
-
-        h1 { border-bottom: 2px solid var(--accent-blue); padding-bottom: 10px; width: 100%; max-width: 900px; text-align: center; }
-
-        .library-card {
-            background-color: var(--bg-card);
-            width: 100%; max-width: 900px;
-            border-radius: 15px; padding: 25px;
-            margin-top: 25px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            border: 1px solid rgba(0, 168, 255, 0.2);
+        .header{
+            text-align:center;
+            margin-bottom:30px;
         }
 
-        .lib-header {
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #0f3460; padding-bottom: 15px; margin-bottom: 20px;
+        .logo-box{
+            width:90px;
+            height:90px;
+            border:4px solid var(--blue);
+            background:#2b2b35;
+            border-radius:14px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            margin:auto;
         }
 
-        .lib-title { font-size: 1.6em; color: var(--terminal-green); font-weight: bold; }
-
-        .btn-link {
-            background-color: var(--accent-blue); color: white;
-            text-decoration: none; padding: 8px 16px;
-            border-radius: 6px; font-weight: bold; transition: 0.3s;
+        .logo-text{
+            color:var(--blue);
+            font-size:42px;
+            font-weight:bold;
+            font-family:Courier New, monospace;
         }
-        .btn-link:hover { background-color: #48dbfb; transform: scale(1.05); }
 
-        .cmd-group { margin-bottom: 20px; padding: 15px; background: #1a1a2e; border-radius: 8px; }
-        .cmd-name { color: var(--warning-orange); font-family: 'Courier New', monospace; font-weight: bold; font-size: 1.1em; }
-        .cmd-desc { display: block; margin: 5px 0; color: #bbb; font-size: 0.95em; }
-        .code-ex {
-            background: #0f3460; color: #fff; padding: 10px;
-            border-radius: 5px; font-family: 'Courier New', monospace;
-            font-size: 0.9em; margin-top: 10px; border-left: 3px solid var(--accent-blue);
+        .lema{
+            margin-top:10px;
+            color:#4cc9f0;
+            font-style:italic;
         }
-        .tag { color: #ff007f; font-weight: bold; }
+
+        h1{
+            border-bottom:2px solid var(--blue);
+            padding-bottom:10px;
+            width:100%;
+            max-width:950px;
+            text-align:center;
+        }
+
+        .library-card{
+            width:100%;
+            max-width:950px;
+            background:var(--card);
+            margin-top:25px;
+            border-radius:16px;
+            padding:25px;
+            box-shadow:0 8px 20px rgba(0,0,0,0.4);
+            border:1px solid rgba(0,168,255,0.25);
+        }
+
+        .lib-header{
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            border-bottom:1px solid #0f3460;
+            padding-bottom:15px;
+            margin-bottom:20px;
+        }
+
+        .lib-title{
+            color:var(--green);
+            font-size:1.6em;
+            font-weight:bold;
+        }
+
+        .btn-link{
+            background:var(--blue);
+            color:white;
+            text-decoration:none;
+            padding:10px 18px;
+            border-radius:8px;
+            font-weight:bold;
+        }
+
+        .cmd-group{
+            background:#1a1a2e;
+            padding:15px;
+            border-radius:10px;
+            margin-bottom:18px;
+        }
+
+        .cmd-name{
+            color:var(--orange);
+            font-weight:bold;
+            font-family:Courier New, monospace;
+            font-size:1.1em;
+        }
+
+        .cmd-desc{
+            display:block;
+            margin-top:8px;
+            line-height:1.6em;
+        }
+
+        .code-ex{
+            background:#0f3460;
+            padding:12px;
+            border-radius:6px;
+            margin-top:10px;
+            font-family:Courier New, monospace;
+            border-left:4px solid var(--blue);
+            white-space:pre-wrap;
+        }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <div class="logo-box"><div class="logo-text">>_</div></div>
-        <div class="lema">"Se tem uma linha, tem história!"</div>
+<div class="header">
+    <div class="logo-box">
+        <div class="logo-text">>_</div>
     </div>
 
-    <h1>Manual de Bibliotecas UniLine v1.2</h1>
+    <div class="lema">
+        "Se tem uma linha, tem história!"
+    </div>
+</div>
 
-    <div class="library-card">
-        <div class="lib-header">
-            <div class="lib-title">ww intermediary (Intermediário)</div>
-            <a href="intermediary.html" class="btn-link">Abrir Transpilador</a>
+<h1>Manual Oficial de Bibliotecas — UniLine v1.3</h1>
+
+<!-- INTERMEDIARY -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">1. Intermediário (ww intermediary)</div>
+        <a href="intermediary.html" class="btn-link">ACESSAR INTERMEDIARY</a>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">fn</div>
+        <span class="cmd-desc">
+            Cria funções reutilizáveis.
+            UniLine usa "uma linha" separada por x.
+        </span>
+
+        <div class="code-ex">
+fn printarOla: x show("Olá") x call(printarOla)
         </div>
 
-        <div class="cmd-group">
-            <span class="cmd-name">1 - fn / call (Funções)</span>
-            <span class="cmd-desc">Cria blocos de código reutilizáveis. Use fn para definir e call para executar.</span>
-            <div class="code-ex">fn printarOla: x show("Olá") x call(printarOla)</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">2 - opinion / opinions (Comentários)</span>
-            <span class="cmd-desc">Notas para o programador. "opinion" para uma linha e "opinions/stopOpinion" para várias.</span>
-            <div class="code-ex">opinions: "UniLine" x "Python" stopOpinion</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">3 - crescent / decrescent</span>
-            <span class="cmd-desc">Organiza números automaticamente. Imprime sozinho se não for guardado em variável.</span>
-            <div class="code-ex">crescent(1, 9, 4, 5, 2) x opinion: "Saída: 1, 2, 4, 5, 9"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">4 - choose</span>
-            <span class="cmd-desc">Sorteia um ou mais itens de uma lista aleatoriamente.</span>
-            <div class="code-ex">choose(1, 2, 3)[2] x opinion: "Escolhe 2 números da lista"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">5 - wait / waitms</span>
-            <span class="cmd-desc">Pausa o programa por segundos (wait) ou milissegundos (waitms).</span>
-            <div class="code-ex">wait(5) x show("Passaram 5 segundos")</div>
+        <div class="code-ex">
+fn printarNumero[numero]: x show(numero) x call(printarNumero[1])
         </div>
     </div>
 
-    <div class="library-card">
-        <div class="lib-header">
-            <div class="lib-title">ww strman (Manipulação de Strings)</div>
-            <a href="strman.html" class="btn-link">Abrir Transpilador</a>
-        </div>
+    <div class="cmd-group">
+        <div class="cmd-name">call()</div>
+        <span class="cmd-desc">
+            Executa uma função criada com fn.
+        </span>
 
-        <div class="cmd-group">
-            <span class="cmd-name">I - cesar("string")[nível]</span>
-            <span class="cmd-desc">Criptografa o texto usando a Cifra de César (deslocamento alfabético).</span>
-            <div class="code-ex">cesar("abcdef")[1] x opinion: "Saída: bcdefg"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">II - replace("alvo", "novo", of contexto)</span>
-            <span class="cmd-desc">Localiza um texto e o substitui por outro.</span>
-            <div class="code-ex">replace("Oi", "Olá", of "Oi, Yudhi")</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">III - lower() / upper()</span>
-            <span class="cmd-desc">Transforma o texto em minúsculo ou MAIÚSCULO.</span>
-            <div class="code-ex">lower("OI!") x opinion: "oi!"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">IV - transform() (Regex UniLine)</span>
-            <span class="cmd-desc">Extrai dados específicos usando: <span class="tag">&lt;x&gt;</span>(texto), <span class="tag">&lt;num&gt;</span>(número), <span class="tag">&lt;bool&gt;</span>(lógico).</span>
-            <div class="code-ex">transform("Olá, &lt;x&gt;", texto) x opinion: "Extrai o nome"</div>
+        <div class="code-ex">
+call(printarOla)
         </div>
     </div>
 
-    <div class="library-card">
-        <div class="lib-header">
-            <div class="lib-title">ww arrays (Listas)</div>
-            <a href="arrays.html" class="btn-link">Abrir Transpilador</a>
-        </div>
+    <div class="cmd-group">
+        <div class="cmd-name">opinion</div>
+        <span class="cmd-desc">
+            Cria comentários de uma linha.
+        </span>
 
-        <div class="cmd-group">
-            <span class="cmd-name">I - Variável de Lista</span>
-            <span class="cmd-desc">Cria listas entre colchetes. Lembre-se: O primeiro item é o [1]!</span>
-            <div class="code-ex">lista = ["Fazer bolo", "Comprar ovos"]</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">II - position(n, variável)</span>
-            <span class="cmd-desc">Mostra o valor na enésima posição.</span>
-            <div class="code-ex">position(3, [1, 3, 5]) x opinion: "Saída: 5"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">III - total(variável)</span>
-            <span class="cmd-desc">Soma todos os números de uma lista matemática.</span>
-            <div class="code-ex">total([1, 2, 3]) x opinion: "Saída: 6"</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">IV - read(variável, segundos)</span>
-            <span class="cmd-desc">Lê a lista inteira, linha por linha, no tempo determinado.</span>
-            <div class="code-ex">read(lista, 5)</div>
-        </div>
-
-        <div class="cmd-group">
-            <span class="cmd-name">V - divisibility(lista, divisor)</span>
-            <span class="cmd-desc">Filtra a lista mostrando apenas números divisíveis pelo divisor.</span>
-            <div class="code-ex">divisibility([1, 2, 3, 6], 3) x opinion: "Saída: 3, 6"</div>
+        <div class="code-ex">
+opinion: "Eu realmente amo programar!"
         </div>
     </div>
 
-    <div class="library-card">
-        <div class="lib-header">
-            <div class="lib-title">Nativas (Boolean & Random)</div>
-        </div>
-        <div class="cmd-group">
-            <span class="cmd-name">Boolean: verifyBool / intBool / kwBool</span>
-            <span class="cmd-desc">Compara e converte estados yes/no em números ou palavras.</span>
-        </div>
-        <div class="cmd-group">
-            <span class="cmd-name">Random: randomint / randomdb / randomstr</span>
-            <span class="cmd-desc">Gera números inteiros, decimais ou strings de letras aleatórias.</span>
+    <div class="cmd-group">
+        <div class="cmd-name">opinions / stopOpinion</div>
+        <span class="cmd-desc">
+            Cria comentários de várias linhas.
+            stopOpinion encerra os comentários.
+        </span>
+
+        <div class="code-ex">
+opinions: "UniLine" x "Python" stopOpinion
         </div>
     </div>
 
+    <div class="cmd-group">
+        <div class="cmd-name">crescent()</div>
+        <span class="cmd-desc">
+            Coloca números em ordem crescente.
+        </span>
+
+        <div class="code-ex">
+crescent(1, 9, 4, 5, 2)
+
+Saída:
+1, 2, 4, 5, 9
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">decrescent()</div>
+        <span class="cmd-desc">
+            Coloca números em ordem decrescente.
+        </span>
+
+        <div class="code-ex">
+decrescent(1, 9, 4, 5, 2)
+
+Saída:
+9, 5, 4, 2, 1
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">choose()</div>
+        <span class="cmd-desc">
+            Escolhe itens aleatoriamente.
+        </span>
+
+        <div class="code-ex">
+choose(1, 2, 3, 4, 5)
+        </div>
+
+        <div class="code-ex">
+choose(1, 2, 3, 4, 5)[2]
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">wait() / waitms()</div>
+        <span class="cmd-desc">
+            Pausa o terminal por segundos ou milissegundos.
+        </span>
+
+        <div class="code-ex">
+wait(5) x show("5 segundos!")
+        </div>
+
+        <div class="code-ex">
+waitms(5000) x show("5 segundos = 5000 milissegundos!")
+        </div>
+    </div>
+
+</div>
+
+<!-- STRMAN -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">2. Manipulação de Strings (ww strman)</div>
+        <a href="strman.html" class="btn-link">ACESSAR STRMAN</a>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">cesar()</div>
+        <span class="cmd-desc">
+            Aplica a cifra de Júlio César.
+        </span>
+
+        <div class="code-ex">
+cesar("abcdef")[1]
+
+Saída:
+bcdefg
+        </div>
+
+        <div class="code-ex">
+cesar("abcdef")[13]
+
+Saída:
+nopqrs
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">replace()</div>
+        <span class="cmd-desc">
+            Substitui textos.
+        </span>
+
+        <div class="code-ex">
+mensagem = "Oi, Yudhi"
+replace("Oi", "Olá", of mensagem)
+
+Saída:
+Olá, Yudhi
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">lower()</div>
+        <span class="cmd-desc">
+            Transforma o texto em minúsculo.
+        </span>
+
+        <div class="code-ex">
+lower("OLÁ!")
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">upper()</div>
+        <span class="cmd-desc">
+            Transforma o texto em maiúsculo.
+        </span>
+
+        <div class="code-ex">
+upper("olá!")
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">transform()</div>
+        <span class="cmd-desc">
+            Extrai partes específicas de textos.
+            &lt;x&gt; pega strings.
+            &lt;num&gt; transforma em número.
+            &lt;bool&gt; transforma em booleano.
+            &lt;char&gt; pega apenas a inicial.
+        </span>
+
+        <div class="code-ex">
+texto = "Olá, Yudhi"
+transform("Olá, <x>", "<x>")
+
+Saída:
+Yudhi
+        </div>
+    </div>
+
+</div>
+
+<!-- ARRAYS -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">3. Arrays (ww arrays)</div>
+        <a href="arrays.html" class="btn-link">ACESSAR ARRAYS</a>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">Variáveis de Lista</div>
+        <span class="cmd-desc">
+            Cria listas.
+        </span>
+
+        <div class="code-ex">
+afazeres = ["Fazer bolo", "Comprar farinha", "Colocar 3 ovos"]
+        </div>
+
+        <div class="code-ex">
+fibonacci = [1, 1, 2, 3, 5, 8, 13, 21]
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">position()</div>
+        <span class="cmd-desc">
+            Mostra a posição específica da lista.
+        </span>
+
+        <div class="code-ex">
+impares = [1, 3, 5, 7, 9]
+position(3, impares)
+
+Saída:
+5
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">total()</div>
+        <span class="cmd-desc">
+            Soma todos os números da lista.
+        </span>
+
+        <div class="code-ex">
+total([1, 2, 3])
+
+Saída:
+6
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">read()</div>
+        <span class="cmd-desc">
+            Lê todos os itens do array separados por linha.
+        </span>
+
+        <div class="code-ex">
+contar = [1, 2, 3]
+read(contar, 5)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">divisibility()</div>
+        <span class="cmd-desc">
+            Mostra apenas números divisíveis.
+        </span>
+
+        <div class="code-ex">
+divisibility([1, 2, 3, 6, 78], 3)
+
+Saída:
+3, 6, 78
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">show([array])</div>
+        <span class="cmd-desc">
+            Arrays podem ser mostrados diretamente.
+        </span>
+
+        <div class="code-ex">
+show([1, 2, 3])
+
+Saída:
+1, 2, 3
+        </div>
+    </div>
+
+</div>
+
+<!-- BOOLEAN RANDOM -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">4. Booleanos e Pseudoaleatórios</div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">verifyBool()</div>
+        <span class="cmd-desc">
+            Compara booleanos usando operações.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">intBool()</div>
+        <span class="cmd-desc">
+            Transforma palavras booleanas em números.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">kwBool()</div>
+        <span class="cmd-desc">
+            Transforma números em palavras booleanas.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">randomint()</div>
+        <span class="cmd-desc">
+            Sorteia números inteiros.
+        </span>
+
+        <div class="code-ex">
+randomint(1, 10)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">randomdb()</div>
+        <span class="cmd-desc">
+            Sorteia números decimais.
+        </span>
+
+        <div class="code-ex">
+randomdb(1, 10)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">randomstr()</div>
+        <span class="cmd-desc">
+            Gera strings aleatórias.
+        </span>
+
+        <div class="code-ex">
+randomstr(5)
+        </div>
+    </div>
+
+</div>
+
+<!-- FILES -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">5. Banco de Dados (ww files)</div>
+        <a href="files.html" class="btn-link">ACESSAR FILES</a>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">files</div>
+        <span class="cmd-desc">
+            Sistema de memória permanente.
+            Salva números, textos e códigos.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">save()</div>
+        <span class="cmd-desc">
+            Salva permanentemente arquivos.
+        </span>
+
+        <div class="code-ex">
+save("Olá" as texto.txt)
+
+save("10" as pontos.num)
+
+save("show('Oi')" as script.uni)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">show()</div>
+        <span class="cmd-desc">
+            Mostra o conteúdo salvo do arquivo.
+        </span>
+
+        <div class="code-ex">
+show(texto.txt)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">forget()</div>
+        <span class="cmd-desc">
+            Remove arquivos da memória permanente.
+        </span>
+
+        <div class="code-ex">
+forget(texto.txt)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">showMemory()</div>
+        <span class="cmd-desc">
+            Mostra todos os arquivos salvos.
+        </span>
+
+        <div class="code-ex">
+showMemory()
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">.uni</div>
+        <span class="cmd-desc">
+            Arquivos de código UniLine.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">.txt</div>
+        <span class="cmd-desc">
+            Arquivos de texto.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">.num</div>
+        <span class="cmd-desc">
+            Arquivos numéricos.
+        </span>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">.frac</div>
+        <span class="cmd-desc">
+            Arquivos de frações mistas.
+        </span>
+
+        <div class="code-ex">
+1int2db3
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">calculate()</div>
+        <span class="cmd-desc">
+            Realiza operações matemáticas.
+            Suporta +, -, *, /, % e elev.
+        </span>
+
+        <div class="code-ex">
+calculate(a.num + b.num)
+
+calculate(a.num elev b.num)
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">concat()</div>
+        <span class="cmd-desc">
+            Concatena textos ou soma números.
+        </span>
+
+        <div class="code-ex">
+concat(nome.txt + sobrenome.txt)
+        </div>
+    </div>
+
+</div>
+
+<!-- MATH -->
+<div class="library-card">
+
+    <div class="lib-header">
+        <div class="lib-title">6. Matemática Avançada (ww math)</div>
+        <a href="math.html" class="btn-link">ACESSAR MATH</a>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">Frações Mistas</div>
+        <span class="cmd-desc">
+            int representa a parte inteira.
+            db representa a parte fracionária.
+        </span>
+
+        <div class="code-ex">
+1int2db3
+
+2db3
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">mod</div>
+        <span class="cmd-desc">
+            Mostra o resto da divisão.
+        </span>
+
+        <div class="code-ex">
+calculate(9 mod 5)
+
+Saída:
+4
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">d()[x]</div>
+        <span class="cmd-desc">
+            Converte frações em decimal.
+        </span>
+
+        <div class="code-ex">
+d(1int2db3)[15]
+
+Saída:
+1.666666666666666
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">root()</div>
+        <span class="cmd-desc">
+            Calcula raízes matemáticas.
+        </span>
+
+        <div class="code-ex">
+root(2)[2, 3]
+
+Saída:
+1.414
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">binary()</div>
+        <span class="cmd-desc">
+            Converte números para binário.
+        </span>
+
+        <div class="code-ex">
+binary(9)
+
+Saída:
+1001
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">Tipo Binário</div>
+        <span class="cmd-desc">
+            O b identifica valores binários.
+            show() converte para decimal.
+            binary() mantém binário.
+        </span>
+
+        <div class="code-ex">
+binario = 1001b
+
+show(binario)
+
+Saída:
+9
+
+binary(binario)
+
+Saída:
+1001
+        </div>
+    </div>
+
+    <div class="cmd-group">
+        <div class="cmd-name">factorial()</div>
+        <span class="cmd-desc">
+            Multiplica todos os números de 1 até o valor informado.
+        </span>
+
+        <div class="code-ex">
+factorial(5)
+
+Saída:
+120
+        </div>
+    </div>
+
+</div>
 </body>
 </html>
