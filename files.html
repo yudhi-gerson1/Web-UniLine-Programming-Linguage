@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WW FILES v1.3</title>
+
+<style>
+
+body{
+    background:#212124;
+    color:white;
+    font-family:Arial,sans-serif;
+    margin:0;
+    text-align:center;
+}
+
+header{
+    background:#2a2a35;
+    padding:25px;
+    border-bottom:3px solid #00bfff;
+}
+
+.logo{
+    width:90px;
+    height:90px;
+    margin:auto;
+    background:#555;
+    border:4px solid #00bfff;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#00bfff;
+    font-size:35px;
+    font-weight:bold;
+    font-family:monospace;
+}
+
+h1{
+    margin-top:15px;
+    color:#00bfff;
+}
+
+.motto{
+    color:#7ddfff;
+    font-style:italic;
+}
+
+.container{
+    width:90%;
+    max-width:900px;
+    margin:30px auto;
+}
+
+textarea{
+    width:100%;
+    height:220px;
+    background:#32323a;
+    color:#00bfff;
+    border:2px solid #555;
+    border-radius:10px;
+    padding:15px;
+    box-sizing:border-box;
+    resize:none;
+    font-family:monospace;
+    font-size:16px;
+}
+
+button{
+    margin-top:20px;
+    padding:15px 30px;
+    border:none;
+    border-radius:30px;
+    background:#00bfff;
+    color:white;
+    font-weight:bold;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.terminal{
+    margin-top:20px;
+    background:#111;
+    color:#00ff66;
+    padding:15px;
+    min-height:150px;
+    border-left:5px solid #00bfff;
+    border-radius:8px;
+    text-align:left;
+    white-space:pre-wrap;
+    overflow:auto;
+    font-family:monospace;
+}
+
+.error{
+    color:#ff5555;
+    font-weight:bold;
+}
+
+.success{
+    color:#00ffff;
+    font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+
+<div class="logo">
+>_
+</div>
+
+<h1>WW FILES v1.3</h1>
+
+<div class="motto">
+"Se tem uma linha, tem história!"
+</div>
+
+</header>
+
+<div class="container">
+
+<textarea id="codigo-input" placeholder='save("Olá Mundo" as texto.txt) x show(texto.txt)'></textarea>
+
+<button onclick="executarUniLine()">
+EXECUTAR
+</button>
+
+<div class="terminal" id="terminal-output">
+Sistema iniciado...
+</div>
+
+</div>
+
+<script>
+
+function print(msg,classe=""){
+
+    const terminal = document.getElementById("terminal-output");
+
+    if(classe){
+        terminal.innerHTML += `<div class="${classe}">${msg}</div>`;
+    }else{
+        terminal.innerHTML += `<div>${msg}</div>`;
+    }
+
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+function obterNumero(valor){
+
+    if(/^\d+(\.\d+)?$/.test(valor)){
+        return Number(valor);
+    }
+
+    let frac = valor.match(/^(\d+)int(\d+)db(\d+)$/);
+
+    if(frac){
+
+        let inteiro = Number(frac[1]);
+        let num = Number(frac[2]);
+        let den = Number(frac[3]);
+
+        if(den === 0){
+            throw "DivisionError: Cannot divide by 0.";
+        }
+
+        return inteiro + (num/den);
+    }
+
+    throw `FileError: Invalid file type for "${valor}"`;
+}
+
+function executarUniLine(){
+
+    const input = document
+    .getElementById("codigo-input")
+    .value
+    .trim();
+
+    const terminal = document.getElementById("terminal-output");
+
+    terminal.innerHTML = "";
+
+    let memoria = JSON.parse(
+        localStorage.getItem("wwfiles_db") || "{}"
+    );
+
+    try{
+
+        if(
+            (input.match(/\(/g)||[]).length !==
+            (input.match(/\)/g)||[]).length
+        ){
+            throw "UnclosedError: expected ')'.";
+        }
+
+        let comandos = input
+        .split(/\s+x\s+/);
+
+        for(let linha of comandos){
+
+            linha = linha.trim();
+
+            if(!linha) continue;
+
+            // SAVE
+
+            let save = linha.match(
+                /^save\s*\(\s*["']([\s\S]*?)["']\s+as\s+([a-zA-Z0-9_\-]+\.(uni|txt|num|frac))\s*\)$/
+            );
+
+            if(save){
+
+                let conteudo = save[1];
+                let arquivo = save[2];
+                let tipo = save[3];
+
+                if(tipo === "num"){
+
+                    if(!/^\d+(\.\d+)?$/.test(conteudo)){
+                        throw `FileError: Invalid file type for "${conteudo}"`;
+                    }
+                }
+
+                if(tipo === "frac"){
+
+                    if(!/^\d+int\d+db\d+$/.test(conteudo)){
+                        throw `FileError: Invalid file type for "${conteudo}"`;
+                    }
+                }
+
+                memoria[arquivo] = conteudo;
+
+                localStorage.setItem(
+                    "wwfiles_db",
+                    JSON.stringify(memoria)
+                );
+
+                print(
+                    `Saved "${arquivo}" permanently.`,
+                    "success"
+                );
+
+                continue;
+            }
+
+            // SHOW MEMORY
+
+            if(linha === "showMemory()"){
+
+                let keys = Object.keys(memoria);
+
+                if(keys.length === 0){
+
+                    print("Permanent memory is empty.");
+
+                }else{
+
+                    for(let k of keys){
+                        print(`${k} -> ${memoria[k]}`);
+                    }
+                }
+
+                continue;
+            }
+
+            // SHOW
+
+            let show = linha.match(
+                /^show\s*\(\s*([^)]+)\s*\)$/
+            );
+
+            if(show){
+
+                let arquivo = show[1].trim();
+
+                if(!(arquivo in memoria)){
+                    throw `NotFoundError: The file "${arquivo}" does not exist.`;
+                }
+
+                print(memoria[arquivo]);
+
+                continue;
+            }
+
+            // FORGET
+
+            let forget = linha.match(
+                /^forget\s*\(\s*([a-zA-Z0-9_\-]+\.(uni|txt|num|frac))\s*\)$/
+            );
+
+            if(forget){
+
+                let arquivo = forget[1];
+
+                if(!(arquivo in memoria)){
+                    throw `NotFoundError: The file "${arquivo}" does not exist.`;
+                }
+
+                delete memoria[arquivo];
+
+                localStorage.setItem(
+                    "wwfiles_db",
+                    JSON.stringify(memoria)
+                );
+
+                print(
+                    `"${arquivo}" removed.`,
+                    "success"
+                );
+
+                continue;
+            }
+
+            // CALCULATE
+
+            let calc = linha.match(
+                /^calculate\s*\(\s*([a-zA-Z0-9_\-]+\.(num|frac))\s*(\+|\-|\*|\/|%|elev)\s*([a-zA-Z0-9_\-]+\.(num|frac))\s*\)$/
+            );
+
+            if(calc){
+
+                let a1 = calc[1];
+                let op = calc[3];
+                let a2 = calc[4];
+
+                if(!(a1 in memoria)){
+                    throw `NotFoundError: The file "${a1}" does not exist.`;
+                }
+
+                if(!(a2 in memoria)){
+                    throw `NotFoundError: The file "${a2}" does not exist.`;
+                }
+
+                let n1 = obterNumero(memoria[a1]);
+                let n2 = obterNumero(memoria[a2]);
+
+                let r;
+
+                switch(op){
+
+                    case "+":
+                        r = n1 + n2;
+                    break;
+
+                    case "-":
+                        r = n1 - n2;
+                    break;
+
+                    case "*":
+                        r = n1 * n2;
+                    break;
+
+                    case "/":
+
+                        if(n2 === 0){
+                            throw "DivisionError: Cannot divide by 0.";
+                        }
+
+                        r = n1 / n2;
+
+                    break;
+
+                    case "%":
+                        r = n1 % n2;
+                    break;
+
+                    case "elev":
+                        r = n1 ** n2;
+                    break;
+                }
+
+                print(r);
+
+                continue;
+            }
+
+            // CONCAT
+
+            let concat = linha.match(
+                /^concat\s*\((.+)\)$/
+            );
+
+            if(concat){
+
+                let partes = concat[1]
+                .split("+")
+                .map(x=>x.trim());
+
+                let resultado = "";
+
+                let todosNumeros = true;
+
+                let soma = 0;
+
+                for(let arq of partes){
+
+                    if(!(arq in memoria)){
+                        throw `NotFoundError: The file "${arq}" does not exist.`;
+                    }
+
+                    let valor = memoria[arq];
+
+                    resultado += valor;
+
+                    if(/^\d+(\.\d+)?$/.test(valor)){
+
+                        soma += Number(valor);
+
+                    }else{
+
+                        todosNumeros = false;
+                    }
+                }
+
+                if(todosNumeros){
+
+                    print(soma);
+
+                }else{
+
+                    let erroNumero = partes.some(
+                        a => a.endsWith(".num") || a.endsWith(".frac")
+                    );
+
+                    if(erroNumero){
+                        throw "AnyError: invalid concatenation.";
+                    }
+
+                    print(resultado);
+                }
+
+                continue;
+            }
+
+            throw "SyntaxError: Unknown command.";
+        }
+
+    }catch(e){
+
+        print(e,"error");
+    }
+}
+
+</script>
+
+</body>
+</html>
